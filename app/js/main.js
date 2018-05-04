@@ -25,14 +25,17 @@ var arrPM10 = arrPM2 = arrNO2 = arrCO = arrO3 = arrSO2 = [];
 var contador_vacios = 0;
 var ant = 0;
 var banderaPromedios = true;
+var ultimosEstados = [];
 
 $(document).ready(function()
 {
+  $('#estados').val("Aguascalientes");
   $(".forLoader").removeClass("hide").slideUp();
   
   $("#myModal").on("hidden.bs.modal", function () 
   {
     contador_vacios = 0;
+    ultimosEstados = [];
     $(".boton_pop").each(function(){
       $(this).removeClass("bloqueado");
     });
@@ -185,6 +188,11 @@ $(document).ready(function()
         },
       },
       scales: {
+        yAxes: [{
+          ticks: {
+            min: 0
+          }
+        }],
         xAxes: [{
           gridLines: {
             display: true,
@@ -397,70 +405,115 @@ function dateMasUno(dateEvaluar, horas)
 
 function getNewDatas(data) {
   var newData = [];
-  var missing = 0;
+  var totalHoursMonth = 672; // 24 hrs * 28 days
+  var dateInsert = moment();
+  // Bander para realmente llenar la última hora
+  // debido al cambio de horario
+  var noReal672 = false;
+  var prevDate = moment().minutes(0).seconds(0).milliseconds(0);
+  prevDate.add(-671, 'hour'); // una hora menos aún por causa del cambio de horario
 
-  data.results.forEach(function(val, ind) {
-    if (ind < data.results.length - 1) {
-      missing = data.results[ind + 1].hora - val.hora - 1;
+  function addNullValues(prevD) {
+    newData.push({
+      date: prevD.format(),
+      'date-insert': dateInsert.format(),
+      fecha: prevD.format('YYYY-MM-DD'),
+      hora: prevD.get('hour'),
+      parametro: null,
+      validoorig: null,
+      valororig: null
+    });
+
+    prevD.add(1, 'hour');
+  }
+
+  data.forEach(function (val, ind) {
+    var f = val.fecha;
+    var h = val.hora;
+    var hora = h < 10 ? "0" + h : h;
+    var currentDate = moment(f + ' ' + hora + ':00:00');
+
+    // Condición exclusiva para el horario de verano
+    // la hora 2 la convierte en la hora 3, y no se agrega hora del prevDate
+    if (currentDate.get('hour') !== h) {
+      newData.push(val);
+      noReal672 = true;
+    } else if (currentDate.format() === prevDate.format() ||
+              (prevDate.get('hour') === 1 && h === 2)) { // Condición exclusiva para horario de invierno
+      newData.push(val);
+      prevDate.add(1, 'hour');
+    } else {
+      // Llena el array de datos nulos hasta coincidir con 
+      while (currentDate.format() !== prevDate.format()) {
+        addNullValues(prevDate);
+      }
 
       newData.push(val);
-
-      if (missing >= 1) {
-        for (var i = 1; i <= missing; i++) {
-          newData.push({
-            date: val.date,
-            'date-insert': val['date-insert'],
-            fecha: val.fecha,
-            hora: val.hora + i,
-            parametro: val.parametro,
-            validoorig: val.validoorig,
-            valororig: null
-          });
-        }
-      } else if (data.results[ind + 1].hora >= 0 && data.results[ind + 1].fecha !== val.fecha) {
-        for (var i = val.hora + 1; i <= 23; i++) {
-          newData.push({
-            date: val.date,
-            'date-insert': val['date-insert'],
-            fecha: val.fecha,
-            hora: i,
-            parametro: val.parametro,
-            validoorig: val.validoorig,
-            valororig: null
-          });
-        }
-        for (var i = 0; i <= data.results[ind + 1].hora - 1; i++) {
-          newData.push({
-            date: data.results[ind].date,
-            'date-insert': val['date-insert'],
-            fecha: data.results[ind + 1].fecha,
-            hora: i,
-            parametro: val.parametro,
-            validoorig: val.validoorig,
-            valororig: null
-          });
-        }
-      }
-    } else {
-      newData.push({
-        date: val.date,
-        'date-insert': val['date-insert'],
-        fecha: val.fecha,
-        hora: val.hora,
-        parametro: val.parametro,
-        validoorig: val.validoorig,
-        valororig: val.valororig
-      });
+      prevDate.add(1, 'hour');
     }
   });
+
+  // Llena los últimos datos nulos hasta la fecha actual
+  if (newData.length < totalHoursMonth) {
+    for (var i = newData.length; i <= totalHoursMonth - 1; i++) {
+      addNullValues(prevDate);
+    }
+  }
+  // Condicional exclusiva para que nos de realmente la última hora
+  // debido al cambio de horario
+  if (noReal672) {
+    addNullValues(prevDate);
+  } else if (!noReal672 && newData.length === 673) { newData.pop(); }
 
   return newData;
 }
 
+function existeUltimoPromedio(e)
+{  
+  for (let l = 0; l < ultimosEstados.length; l++) 
+  {  
+    if(ultimosEstados[l].etiqueta == e)
+    {
+      return l;
+      break;
+    }
+  }
+  return -1;  
+}
+
+function ponerReocmendaciones()
+{
+  for (let index = 0; index < ultimosEstados.length; index++) 
+  {  
+    var r = rangoInecc(ultimosEstados[index].parametro,ultimosEstados[index].horas);
+    if(ultimosEstados[index].valor > r)
+    {
+      $("#recomendaciones").show();
+    }
+  }
+}
+
+function getUltimoRango(p)
+{
+  var valor = '';
+  for (let index = 0; index < ultimosEstados.length; index++) 
+  {  
+    if(ultimosEstados[index].etiqueta === p)
+    {
+      valor =  ultimosEstados[index];
+    }    
+  }
+
+  return valor;
+}
+
+
 function putGrafica(parametro,horas,maximo)
 {
-  dataLocal.results = getNewDatas(dataLocal);
-  
+  if (dataLocal.results.length > 0) {
+    dataLocal.results = getNewDatas(dataLocal.results);
+  }
+
   var data = dataLocal.results;
   var valores = [];
   var promediosMoviles = [];
@@ -468,21 +521,46 @@ function putGrafica(parametro,horas,maximo)
   etiquetas = [];
   lbls.days = [];
   lbls.hours = [];
+  var e = parametro+''+horas;
 
   var newInd = 0;
   for (let index = 0; index < data.length; index++) 
   {
-    if(data[index].valororig < maximo)
+    if(data[index].valororig < maximo && data[index].valororig !== null && data[index].valororig >= 0 )
+    {
       valores.push(data[index].valororig); 
+    
+      var r = existeUltimoPromedio(e);
+      if(horas == "D")
+      {
+        if(r !== -1) //si existe se sustitulle
+        {
+          ultimosEstados[r].valor = data[index].valororig;
+          ultimosEstados[r].fecha = data[index].fecha;
+          ultimosEstados[r].hora = data[index].hora;
+        }
+        else //si no existe se crea
+        { 
+          ultimosEstados.push({
+            etiqueta : e,
+            fecha:data[index].fecha,
+            hora:data[index].hora,
+            horas : horas,
+            parametro : parametro, 
+            valor: data[index].valororig,
+          });
+        }
+      }  
+    }
     else
       valores.push(null); 
 
     // Agrega todas las fechas
     lbls.days.push(data[index].fecha);
     // Agrega todas las horas
-    lbls.hours.push(data[index].date.substring(11, 16));
+    lbls.hours.push((data[index].hora).toString() + ":00");
 
-    if(newInd === 23) {
+    if(data[index].hora === 0) {
       etiquetas.push(data[index].fecha);
       newInd = 0;
     } else { 
@@ -504,7 +582,7 @@ function putGrafica(parametro,horas,maximo)
           var fechaValidar = hacerFechaValida(data[l].date);
        
             var valororig = data[l].valororig;
-            if(valororig < maximo && valororig !== null)
+            if(valororig < maximo && valororig !== null  && valororig >= 0)
             {
               acumulado += valororig;
               numValoresValidos++;
@@ -513,7 +591,29 @@ function putGrafica(parametro,horas,maximo)
         }
 
         if(numValoresValidos  > (horas * .75)) 
-          promediosMoviles.push(acumulado/horas);
+        {
+          var p = acumulado/horas;
+          promediosMoviles.push(p);
+          var r = existeUltimoPromedio(e);
+          
+          if(r !== -1) //si existe se sustitulle
+          {
+            ultimosEstados[r].valor = p;
+            ultimosEstados[r].fecha = data[index].fecha;
+            ultimosEstados[r].hora = data[index].hora;
+          }
+          else //si no existe se crea
+          { 
+            ultimosEstados.push({
+              etiqueta : e,
+              fecha:data[index].fecha,
+              hora:data[index].hora,
+              horas : horas,
+              parametro : parametro,
+              valor: p,
+            });
+          }
+        }
         else
           promediosMoviles.push(null); 
       }
@@ -528,15 +628,41 @@ function putGrafica(parametro,horas,maximo)
     }          
   }
 
-  // Obtiene el último dato o promedio
-  if (promediosMoviles[promediosMoviles.length - 1] === null) {
-    lastAverageOrData = data[data.length - 1].valororig;
-  } else {
-    lastAverageOrData = promediosMoviles[promediosMoviles.length - 1];
+//validamos si es dato horario
+  if(horas != "D")
+  {
+    // Obtiene el último promedio
+    if(promediosMoviles[promediosMoviles.length - 1] !== null  && promediosMoviles[promediosMoviles.length - 1] >= 0 )
+    {
+      lastAverageOrData =  promediosMoviles[promediosMoviles.length - 1] ;
+      //$('.chart-gauge').show();
+    }
+    else
+    {
+      lastAverageOrData =  0;
+      //$('.chart-gauge').hide();
+    }
+    
+  }else
+  {
+    // Obtiene el último dato horario
+    if( valores[valores.length - 1] !== null && valores[valores.length - 1] >= 0 )
+    {
+      lastAverageOrData =  data[data.length - 1].valororig  ;
+      //$('.chart-gauge').show();
+    }
+    else
+    {
+      lastAverageOrData =  0;
+      //$('.chart-gauge').hide();
+    }
   }
+
   // Corta el valor a sólo 3 decimales
-  lastAverageOrData = lastAverageOrData.toString();
-  lastAverageOrData = lastAverageOrData.substring(0, lastAverageOrData.indexOf('.') + 4);
+  if (lastAverageOrData !== null) {
+    lastAverageOrData = lastAverageOrData.toString();
+    lastAverageOrData = lastAverageOrData.substring(0, lastAverageOrData.indexOf('.') + 4);
+  }
 
   var rango = rangoInecc(parametro,horas);
   var valoresRango = [];
@@ -637,30 +763,15 @@ function actualizar_grafica_detalle(valores,etiquetas, lbls, valoresRango,promed
 function poner_botones(valores)
 {
   ant = valores.length;
-  var parametro = valores.length / 4;
   var numDays = [
-    { scope: Math.round(parametro * 1), num: 0 },
-    { scope: Math.round(parametro * 2), num: 0 },
-    { scope: Math.round(parametro * 3), num: 0 },
-    { scope: Math.round(parametro * 4), num: 0 }
+    { scope: Math.round(24 * 3), num: 3 },
+    { scope: Math.round(24 * 7), num: 7 },
+    { scope: Math.round(24 * 14), num: 14 },
+    { scope: Math.round(24 * 28), num: 28 }
   ];
-  var ind = 0;
 
-  // Suma únicamente las fechas que se muestran en la gráfica
-  // de acuerdo a su parámetro
-  for (var i = etiquetas.length - 1; i >= 0; i--) {
-    if (etiquetas[i] !== "" && i >= (etiquetas.length - 1) - numDays[ind].scope) {
-      numDays[ind].num += 1;
-    }
-
-    if ((etiquetas.length - 1) - numDays[ind].scope === i) {
-      ind += 1;
-      numDays[ind].num += numDays[ind - 1].num;
-    }
-  }
-
-  $(".parametro").each(function(index) {
-    $( this ).text(numDays[index].num + " días");
+  $(".parametro").each(function (index) {
+    $(this).text(numDays[index].num + " días");
     $(this).val(numDays[index].scope);
   });
 }
@@ -679,15 +790,13 @@ function convertDate(date)
 
 function getFormatDateAPI(d)
 {
-  var fecha = d.getFullYear()+"-"+ meis[d.getMonth()] +"-"+((d.getDate() < 10?"0":"") + d.getDate())      +"T"+ ( (d.getHours() < 10?"0":"") + d.getHours() ) +":"+( (d.getMinutes()<10?"0":"") + d.getMinutes() )+":00"; 
+  var fecha = d.getFullYear() + "-" +
+              meis[d.getMonth()] + "-" +
+              ( (d.getDate() < 10?"0":"") + d.getDate() )+
+              "T" +( (d.getHours() < 10?"0":"") +d.getHours() ) + ":00:00"; 
+              
   return fecha;
 }
-
-// function getFormatDateMasUno(d,h)
-// {
-//   var fecha = d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+((d.getDate() < 10?'0':'') + d.getDate())      +'T'+ ( (h < 10?'0':'') + h ) +':'+( (d.getMinutes()<10?'0':'') + d.getMinutes() )+':00';
-//   return fecha;
-// }
 
 function ponEstacionesSel()
 {
@@ -891,6 +1000,7 @@ function cambioParametro(parametro, horas,id,titulo,lb)
   $("#recomendaciones").hide();
   
   reset_botones();
+  ponerReocmendaciones();
   
   if(!($("#"+id).hasClass("bloqueado")))
   {
@@ -959,20 +1069,41 @@ function cambioParametro(parametro, horas,id,titulo,lb)
     putGrafica(parametro, horas,maximoL);
     promedioFinal =  lastAverageOrData;
 
+    var ultimoRango =  getUltimoRango(parametro+''+horas);
 
-    if(promedioFinal > 0)
+
+
+
+    if(ultimoRango !== '')
     {
-      if(maximoP < promedioFinal)
-        $("#recomendaciones").show();
-
+      var vString = ultimoRango.valor.toString();
+      vString = vString.substring(0, vString.indexOf('.') + 4);
       $(".chart-gauge").html("");
-      $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: lastAverageOrData,label:label,gaugeMaxValue:maximoP*2});
+      $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: vString,label:label,gaugeMaxValue:maximoP*2});
+
+      $(".date-gauge").html(ultimoRango.fecha+ "--" + ultimoRango.hora+':00:00');
     }
     else
     {
       $(".chart-gauge").html("");
-      $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: lastAverageOrData, label: label, gaugeMaxValue: maximoP*2});
+      $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: 0,label:label,gaugeMaxValue:maximoP*2});
+
+      $(".date-gauge").html("");
     }
+    
+    
+    // if(promedioFinal > 0)
+    // {
+    //   if(maximoP < promedioFinal)
+    //     $("#recomendaciones").show();
+
+      
+    // }
+    // else
+    // {
+    //   $(".chart-gauge").html("");
+    //   $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: getUltimoRango(parametro+''+horas).toFixed(3), label: label, gaugeMaxValue: maximoP*2});
+    // }
   }
 }
 
