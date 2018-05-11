@@ -74,7 +74,7 @@
                 </select>
 
                 <select class="browser-default contaminantes hidden" name="" id="contaminantes">
-                  <option value="0">3.-Selecciona un contaminate</option>
+                  <option value="0">3.-Selecciona un contaminante</option>
                 </select>
               </div>
 
@@ -233,12 +233,12 @@
                     <p><b>Estación:</b></p>
                     <p id="estacion_detalle">XAL-Xalostoc</p>
                   </div>
-                  <div class="col-xs-4">
+                  <div class="col-xs-4 temperatura">
                     <img class="img-responsive" src="imagenes/temperatura.png">
                   </div>
-                  <div class="col-xs-8">
-                    <p><b>Temperatura</b></p>
-                    <p id="temperatura_detalle">No disponible</p>
+                  <div class="col-xs-8 temperatura">
+                    <p><b>Temperatura:</b></p>
+                    <p id="temperatura_detalle"></p>
                   </div>
                   <div class="col-xs-4">
                     <img class="img-responsive" src="imagenes/contaminante.png">
@@ -250,7 +250,7 @@
                 </div>
                 <div class="col-xs-9 hidden-xs">
                     <div class="col-xs-12">
-                        <p class="titulo"><strong>Valores máximos registrados del contaminate <span id="contaminante_grafica"> XXX </span></strong></p>
+                        <p class="titulo"><strong>Valores máximos registrados del contaminante <span id="contaminante_grafica"> XXX </span></strong></p>
                     </div>
                     <div id="max-values" class="margenes_pop">
                       <div class="row">
@@ -270,15 +270,15 @@
                       </div>
                       <div class="row">
                         <div class=" col-xs-4">
-                          <p data-toggle="tooltip" data-id="SO2" data-hour="D" data-placement="bottom" data-code="SO2 (ppm)" data-title="Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios."
+                          <p data-toggle="tooltip" data-id="SO2" data-hour="D" data-placement="bottom" data-code="SO2 (ppm)" data-title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios."
                             class="boton_pop" id="botonSO2D">SO2 (ppm) Dato horario</p>
                         </div>
                         <div class="col-xs-4">
-                          <p data-toggle="tooltip" data-id="SO2" data-hour="8" data-placement="bottom" data-code="SO2 (ppm)" data-title="Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios."
+                          <p data-toggle="tooltip" data-id="SO2" data-hour="8" data-placement="bottom" data-code="SO2 (ppm)" data-title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios."
                             class="boton_pop" id="botonSO28">SO2 (ppm) 8 horas</p>
                         </div>
                         <div class="col-xs-4">
-                          <p data-toggle="tooltip" data-id="SO2" data-hour="24" data-placement="bottom" data-code="SO2 (ppm)" data-title="Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios."
+                          <p data-toggle="tooltip" data-id="SO2" data-hour="24" data-placement="bottom" data-code="SO2 (ppm)" data-title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios."
                             class="boton_pop" id="botonSO224">SO2 (ppm) 24 horas</p>
                         </div>
                       </div>
@@ -352,6 +352,9 @@
                 </div>
                 <input type="hidden" name="estacion" id="estacion_id" value="">
                 <input type="hidden" name="ciudad" id="ciudad" value="">
+                <div class="col-md-12">
+                  <p class="info-text">*Datos preliminares del SMCA que no han pasado por el proceso de validación</p>
+                </div>
               </div>
 
           </div> <!-- fin del body  -->

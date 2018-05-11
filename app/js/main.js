@@ -21,6 +21,13 @@ var ant_lab_arr_dias = [];
 var ant_lab_arr_horas = [];
 
 var arrPM10 = arrPM2 = arrNO2 = arrCO = arrO3 = arrSO2 = [];
+var extension = "";
+
+var dataHour = {
+  "D": "1hr",
+  "8": "8hrs",
+  "24": "24hrs"
+}
 
 var contador_vacios = 0;
 var ant = 0;
@@ -46,6 +53,7 @@ $(document).ready(function()
     chart.data.labels =  arr_vacio;
     chart.update();
     poner_botones(arr_vacio);
+    $(".temperatura").show();
 
     $(".chart-gauge").html("");
     $(".chart-gauge").gaugeIt({selector:".chart-gauge",value:0,gaugeMaxValue:10});
@@ -79,7 +87,12 @@ $(document).ready(function()
   // Get states selected
   $("#estado_primer_select").on("change", function() { ponEstacionesSel() });
   // Get station selected
-  $("#estaciones_select").on("change", function () { ponContaminantesSel() });
+  $("#estaciones_select").on("change", function () 
+    { 
+      if($(this).val() !== "0")
+        ponContaminantesSel() 
+    }
+  );
   // Get states map selected
   $("#estados").on("change", function () { cambiaCoor() });
 
@@ -125,6 +138,7 @@ $(document).ready(function()
     llenarConstaminantes(generaUrl('SO2', estacion, (24*28)),'SO2');
     llenarConstaminantes(generaUrl('O3', estacion, (24*28)),'O3');
     llenarConstaminantes(generaUrl('CO', estacion, (24*28)),'CO');
+    ponerTemperatura(generaUrl('TMP', estacion, (3)),'TMP');
   });
 
   /*instancia de la grafica*/
@@ -139,17 +153,7 @@ $(document).ready(function()
       datasets:
       [
         {
-          label: "Contaminantes",
-          backgroundColor: color(window.chartColors.blue).alpha(0.2).rgbString(),
-          borderColor: window.chartColors.blue,
-          pointBackgroundColor: window.chartColors.blue,
-          data: [0, 10, 5, 2, 20, 30, 45],
-          fill: false,
-          pointRadius: 1.3,
-          borderWidth: 1,
-        },
-        {
-          label: "Valores máximos",
+          label: "Límite móvil",
           borderColor: window.chartColors.red,
           backgroundColor: window.chartColors.red,
           fill: false,
@@ -158,14 +162,15 @@ $(document).ready(function()
           borderWidth: 1,
         },
         {
-          label: "Promedios moviles",
-          borderColor: window.chartColors.green,
-          backgroundColor: window.chartColors.green,
+          label: "Dato horario",
+          backgroundColor: color(window.chartColors.blue).alpha(0.2).rgbString(),
+          borderColor: window.chartColors.blue,
+          pointBackgroundColor: window.chartColors.blue,
+          data: [0, 10, 5, 2, 20, 30, 45],
           fill: false,
-          data:[10, 10, 10, 10, 10, 10, 10],
           pointRadius: 1.3,
           borderWidth: 1,
-        }
+        },
       ]
     },
     options:
@@ -190,6 +195,11 @@ $(document).ready(function()
       scales: {
         yAxes: [{
           ticks: {
+            callback: function (value, index, values) {
+              var val = value.toString();
+              return val.substring(0, val.indexOf('.') + 4) + extension;
+            },
+            padding: 5,
             min: 0
           }
         }],
@@ -272,15 +282,15 @@ $(document).ready(function()
     }
     else if("SO2D" === $(this).val())
     {
-      cambioParametro("SO2","D","botonSO2D","Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)")
+      cambioParametro("SO2","D","botonSO2D","Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)")
     }
     else if("SO28" === $(this).val())
     {
-      cambioParametro("SO2","8","botonSO28","Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)");
+      cambioParametro("SO2","8","botonSO28","Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)");
     }
     else if("SO224" === $(this).val())
     {
-      cambioParametro("SO2","24","botonSO224","Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)");
+      cambioParametro("SO2","24","botonSO224","Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)");
     }
     else if("O3D" === $(this).val())
     {
@@ -337,6 +347,39 @@ $(document).ready(function()
   $(window).resize(function() { setCoverVideo(); });
   setCoverVideo();
 }); // fin de document ready
+
+function ponerTemperatura(url)
+{
+  $.ajax({
+    type: "GET",
+    url: url,
+    data: {},
+    success: function( data, textStatus, jqxhr )
+    {
+      var temperatura = "";
+      for (let index = 0; index < data.results.length; index++) {
+        if(data.results[index].valororig <= 60 && data.results[index].valororig >= -50)
+        {
+          temperatura = data.results[index].valororig.toFixed(2);
+        }
+      }
+
+      if(temperatura !== "")
+      {
+        $("#temperatura_detalle").text(temperatura+' ℃');
+      }
+      else
+      {
+        $(".temperatura").hide();
+      }
+    },
+    xhrFields: {
+      withCredentials: false
+    },
+    crossDomain: true,
+    async:true
+  });
+}
 
 function buscarCiudad(idEstacion)
 {
@@ -568,7 +611,7 @@ function putGrafica(parametro,horas,maximo)
      newInd++;
     }
 
-    if(horas != "D")
+    if(horas !== "D")
     {
       if(index >= horas-1)
       {
@@ -590,7 +633,7 @@ function putGrafica(parametro,horas,maximo)
                 
         }
 
-        if(numValoresValidos  > (horas * .75)) 
+        if(numValoresValidos  >= (horas * .75)) 
         {
           var p = acumulado/horas;
           promediosMoviles.push(p);
@@ -629,7 +672,7 @@ function putGrafica(parametro,horas,maximo)
   }
 
 //validamos si es dato horario
-  if(horas != "D")
+  if(horas !== "D")
   {
     // Obtiene el último promedio
     if(promediosMoviles[promediosMoviles.length - 1] !== null  && promediosMoviles[promediosMoviles.length - 1] >= 0 )
@@ -671,13 +714,30 @@ function putGrafica(parametro,horas,maximo)
     valoresRango[i] = rango;
   }
 
+  var labelsData = {
+    labelInfo: "",
+    labelLimit: "",
+    label: ""
+  }
+
   //crear la label a mostrar
-  if(horas != "D")
-    var label =  "Promedio móvil de "+parametro+" en "+horas+" horas";
-  else  
-    var label =  horas;
+  if(horas !== "D") {
+    labelsData.labelInfo = "Dato horario de " + parametro + " en " + horas + "hrs";
+    labelsData.labelLimit = "Límite móvil de " + horas + "hrs";
+    labelsData.label = "Promedio móvil de " + parametro + " en " + horas + " horas";
+  } else {
+    labelsData.labelInfo = "Dato horario de " + parametro;
+    labelsData.labelLimit = "Límite móvil de 1hr";
+    labelsData.label = horas;
+  }
+
+  // Actualiza la extensión del eje de las Y
+  if (parametro === "PM10" || parametro === "PM2.5")
+    extension = " µg/m³";
+  else
+    extension = " ppm";
     
-  actualizar_grafica_detalle(valores, etiquetas, lbls, valoresRango, promediosMoviles, label);
+  actualizar_grafica_detalle(valores, etiquetas, lbls, valoresRango, promediosMoviles, labelsData);
 }
 
 function rangoInecc(parametro, horas)
@@ -720,37 +780,28 @@ function rangoInecc(parametro, horas)
     return rango;
 }
 
-function actualizar_grafica_detalle(valores,etiquetas, lbls, valoresRango,promediosMoviles,label)
+function actualizar_grafica_detalle(valores, etiquetas, lbls, valoresRango, promediosMoviles, labelsData)
 {
-  chart.data.datasets[0].data =  valores;
-  chart.data.datasets[1].data =  valoresRango;
-  
-  if(label != "D" && banderaPromedios ===  true)
-  {
-    chart.data.datasets[2].data =  promediosMoviles;
-    chart.data.datasets[2].label =  label;
-  }
-  else if(label != "D" && banderaPromedios ===  false)
-  {
-    var objtemp = 
-    {
-      label: label,
-      borderColor: window.chartColors.green,
-      backgroundColor: window.chartColors.green,
-      fill: false,
-      data:promediosMoviles,
-      pointRadius: 1.3,
-      borderWidth: 1,
-    };
+  chart.data.datasets[0].data =  valoresRango;
 
-    chart.data.datasets.push(objtemp);
-    banderaPromedios = true;
-  }
-  else if(label === "D" && banderaPromedios ===  true)
+  if (labelsData.label !== "D" && banderaPromedios ===  true)
   {
-    chart.data.datasets.pop();
-    banderaPromedios = false;
+    chart.data.datasets[1].data =  promediosMoviles;
+    chart.data.datasets[1].label =  labelsData.label;
+    chart.data.datasets[1].backgroundColor = color(window.chartColors.green).alpha(0.2).rgbString();
+    chart.data.datasets[1].borderColor = window.chartColors.green;
+    chart.data.datasets[1].pointBackgroundColor = window.chartColors.green;
   }
+  else if (labelsData.label === "D" && banderaPromedios ===  true)
+  {
+    chart.data.datasets[1].data =  valores;
+    chart.data.datasets[1].label = labelsData.labelInfo;
+    chart.data.datasets[1].backgroundColor = color(window.chartColors.blue).alpha(0.2).rgbString();
+    chart.data.datasets[1].borderColor = window.chartColors.blue;
+    chart.data.datasets[1].pointBackgroundColor = window.chartColors.blue;
+  }
+  
+  chart.data.datasets[0].label = labelsData.labelLimit;
   
   chart.data.labels =  etiquetas;
   chart.data.labels.dias = lbls.days;
@@ -967,7 +1018,7 @@ function generaUrl(parametro,id_estacion,horas)
 
   dPasada.setHours(dActual.getHours() - horas);
 
-  var url = "https://api.datos.gob.mx/v2/sinaica-30?parametro="+parametro+"&estacionesid="+id_estacion+"&date>"+getFormatDateAPI(dPasada)+"&date<"+getFormatDateAPI(dActual)+"&validoorig=1&pageSize="+1000;
+  var url = "https://api.datos.gob.mx/v2/sinaica-30?parametro="+parametro+"&estacionesid="+id_estacion+"&date>"+getFormatDateAPI(dPasada)+"&date<="+getFormatDateAPI(dActual)+"&validoorig=1&pageSize="+1000;
 
   return url;
 }
@@ -1081,7 +1132,7 @@ function cambioParametro(parametro, horas,id,titulo,lb)
       $(".chart-gauge").html("");
       $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: vString,label:label,gaugeMaxValue:maximoP*2});
 
-      $(".date-gauge").html(ultimoRango.fecha+ "--" + ultimoRango.hora+':00:00');
+      $(".date-gauge").html(ultimoRango.fecha+ " -- " + ultimoRango.hora+':00:00 CST');
     }
     else
     {
@@ -1109,7 +1160,7 @@ function cambioParametro(parametro, horas,id,titulo,lb)
 
 function sacaDatoDiario(data,horas,max)
 {
-  if(horas != "D")
+  if(horas !== "D")
   {
     const dActual = new Date();
     var dPasada = new Date();
@@ -1181,12 +1232,12 @@ function sacaDatoDiario(data,horas,max)
 
 function ponContaminantesSel()
 {
-      var options = '<option value="0">3.-Selecciona Contaminate</option>'+
+      var options = '<option value="0">3.-Selecciona Contaminante</option>'+
       '<option value="PM10_24" title="Las partículas menores o iguales a 2.5 micras (PM2.5) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.">PM 10 µg/m&sup3;</option>'+
           '<option value="PM2.5_24" title="Las partículas menores o iguales a 2.5 micras (PM2.5) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.">PM 2.5 µg/m&sup3;</option>'+
-          '<option value="SO2_24" title="Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Promedio 24 horas</option>'+
-          '<option value="SO2_8" title="Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Promedio 8 horas</option>'+
-          '<option value="SO2_D" title="Gas incoloro que se origina durante la combustión de carburantes fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Dato horario</option>'+
+          '<option value="SO2_24" title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Promedio 24 horas</option>'+
+          '<option value="SO2_8" title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Promedio 8 horas</option>'+
+          '<option value="SO2_D" title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Dato horario</option>'+
           '<option value="O3_8" title="Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.">Ozono (O3)(ppm) Promedio 8 horas</option>'+
           '<option value="O3_D" title="Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.">Ozono (O3)(ppm) Dato horario</option>'+
           '<option value="NO2_24" title="El dióxido de nitrógeno es un compuesto químico gaseoso de color marrón amarillento, es un gas tóxico e irritante. La exposición a este gas disminuye la capacidad de difusión pulmonar.">NO2 (ppm)</option>'+

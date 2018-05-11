@@ -53,6 +53,7 @@ $(document).ready(function()
         llenarConstaminantes(generaUrl("SO2", estacion, (24*28)),"SO2");
         llenarConstaminantes(generaUrl("O3", estacion, (24*28)),"O3");
         llenarConstaminantes(generaUrl("CO", estacion, (24*28)),"CO");
+        ponerTemperatura(generaUrl('TMP', estacion, (3)),'TMP');
     });
 
 
@@ -64,7 +65,7 @@ function groupClick(event)
   var estacion  = event.layer.idestacion;
   var array  = event.layer.idarray;
 
-  var info = "<b>Estación:</b> "+estaciones_json[array].id+"<br><b>Nombre: </b>"+ estaciones_json[array].nombre +"<br><b>Codigo: </b>"+estaciones_json[array].codigo+'<br><div style="margin-bottom: 25px; margin-top: 25px;" class="botonera"><a class="modal_mapa" data-id="'+ estaciones_json[array].id +'">Detalle Estación</a></div>';
+  var info = "<b>Estación:</b> "+estaciones_json[array].id+"<br><b>Nombre: </b>"+ estaciones_json[array].nombre +"<br><b>Código: </b>"+estaciones_json[array].codigo+'<br><div style="margin-bottom: 25px; margin-top: 25px;" class="botonera"><a class="modal_mapa" data-id="'+ estaciones_json[array].id +'">Detalle Estación</a></div>';
 
   popup.setContent(info);
   popup.update();

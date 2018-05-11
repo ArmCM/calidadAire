@@ -508,6 +508,11 @@ option {
 
 .leaflet-container a { text-decoration: none; }
 
+.info-text {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
 /*
    Estilos que estaban en el HTML
 */
@@ -745,6 +750,7 @@ option {
 .date-gauge {
   margin-top: -20px;
   margin-bottom: 35px;
+  font-size: 16px;
 }
 
 /*
