@@ -20,8 +20,16 @@ var ant_lab_arr = [];
 var ant_lab_arr_dias = [];
 var ant_lab_arr_horas = [];
 
-var arrPM10 = arrPM2 = arrNO2 = arrCO = arrO3 = arrSO2 = [];
+var arrPM10 = [];
+var arrPM2 = [];
+var arrNO2 = [];
+var arrCO = [];
+var arrO3 = [];
+var arrSO2 = [];
 var extension = "";
+
+var hourSelected = "";
+var stationSelected = "";
 
 var dataHour = {
   "D": "1hr",
@@ -34,10 +42,21 @@ var ant = 0;
 var banderaPromedios = true;
 var ultimosEstados = [];
 
+var pollutantsDescription = {
+  "PM10": "Las partículas menores o iguales a 10 micras (PM<sub>10</sub>) se depositan en la región extratorácica del tracto respiratorio (nariz, boca, naso, oro y laringofarínge); contienen principalmente materiales de la corteza terrestre y se originan en su mayoría por procesos de desintegración de partículas más grandes. También pueden contener material biológico como polen, esporas, virus o bacterias o provenir de la combustión incompleta de combustibles fósiles.",
+  "PM2.5": "Las partículas menores o iguales a 2.5 micras (PM<sub>2.5</sub>) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.",
+  "NO2": "El dióxido de nitrógeno es un compuesto químico gaseoso de color marrón amarillento, es un gas tóxico e irritante. La exposición a este gas disminuye la capacidad de difusión pulmonar.",
+  "SO2": "Gas incoloro que se forma al quemar combustibles fósiles que contienen azufre. La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.",
+  "O3": "Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.",
+  "CO": "Es un gas incoloro e inodoro que en concentraciones altas puede ser letal ya que forma carboxihemoglobina, la cual impide la oxigenación de la sangre."
+}
+
 $(document).ready(function()
 {
-  $('#estados').val("Aguascalientes");
+  $("#estados").val("Aguascalientes");
   $(".forLoader").removeClass("hide").slideUp();
+
+  $('#infoModal').modal();
   
   $("#myModal").on("hidden.bs.modal", function () 
   {
@@ -75,24 +94,24 @@ $(document).ready(function()
 
   // Get maxvalues
   $("#max-values p").on("click", function() {
-  
-    cambioParametro(
-      $(this).attr("data-id"),
-      $(this).attr("data-hour"),
-      $(this).attr("id"),
-      $(this).attr("data-title")
+    hourSelected = $(this).attr("data-hour");
+
+    llenarConstaminantes(
+      generaUrl(
+        $(this).attr("data-id"),
+        stationSelected,
+        (24 * 28)
+      ),
+      $(this).attr("data-id")
     );
+
+    // Set 28 days again
+    $(".parametro").removeClass("active");
+    $("#pinta_primero").addClass("active");
   });
 
   // Get states selected
   $("#estado_primer_select").on("change", function() { ponEstacionesSel() });
-  // Get station selected
-  $("#estaciones_select").on("change", function () 
-    { 
-      if($(this).val() !== "0")
-        ponContaminantesSel() 
-    }
-  );
   // Get states map selected
   $("#estados").on("change", function () { cambiaCoor() });
 
@@ -102,7 +121,7 @@ $(document).ready(function()
   var OpenStreetMap_BlackAndWhite = L.tileLayer("http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
   {
     maxZoom: 18,
-    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   });
 
   OpenStreetMap_BlackAndWhite.addTo(mymap);
@@ -111,25 +130,27 @@ $(document).ready(function()
   /*fin de instancia del mapa*/
 
   $("#estado_primer_select").html(options_estado());
-  //$("#estaciones_select").html(options_estaciones());
-  $("#contaminantes").change(function()
+
+  $("#estaciones_select").on('change', function()
   {
     $(".forLoader").show();
-    var estacion =  $('#estaciones_select').val();
+    var estacion =  $(this).val();
 
     //ponemos los parametros en la ventana 
-    $('#fecha_detalle').html(convertDate(new Date())); 
-    $('#fecha_detalle_m').html(convertDate(new Date())); 
+    $("#fecha_detalle").html(convertDate(new Date())); 
+    $("#fecha_detalle_m").html(convertDate(new Date())); 
     var objEstacion = buscarEstacion(estacion);
     
-    $('#titulo_detalle').html(buscarCiudad(estacion)); 
-    $('#estacion_detalle').html($('#estaciones_select option:selected').text()); 
-    $('#estacion_detalle_m').html('<b>'+$('#estaciones_select option:selected').text()+'</b>'); 
+    $("#titulo_detalle").html(buscarCiudad(estacion)); 
+    $("#estacion_detalle").html($("#estaciones_select option:selected").text()); 
+    $("#estacion_detalle_m").html('<b>'+$("#estaciones_select option:selected").text()+'</b>'); 
     
-    $('#textoTitulo').html($('#'+id).attr('data-original-title')); 
- 
-    var id = 'botonPM10'; 
-    cambioBotonActivo(id); 
+    var idPollutant = "botonPM10";
+    $("#textoTitulo").html($("#" + idPollutant).attr("data-original-title")); 
+    cambioBotonActivo(idPollutant);
+
+    // Set station selected (because exist 2 different ways to get station)
+    stationSelected = estacion;
 
     //vamos a llenar los arreglos de todos los coantaminantes
     llenarConstaminantes(generaUrl('PM10', estacion, (24*28)),'PM10');
@@ -162,7 +183,7 @@ $(document).ready(function()
           borderWidth: 1,
         },
         {
-          label: "Dato horario",
+          label: "Promedio horario",
           backgroundColor: color(window.chartColors.blue).alpha(0.2).rgbString(),
           borderColor: window.chartColors.blue,
           pointBackgroundColor: window.chartColors.blue,
@@ -220,9 +241,9 @@ $(document).ready(function()
   });
   // fin de instancia de la grafica
 
-  $(".parametro").click(function(event)
+  $(".parametro").click(function(e)
   {
-    event.preventDefault();
+    e.preventDefault();
     $(".parametro").removeClass("active");
 
     $( this ).addClass("active");
@@ -231,7 +252,7 @@ $(document).ready(function()
     var tam_dataset = (chart.data.datasets[0].data.length);
     chart.data.labels =  etiquetas;
     
-    if(ant > boton){
+    if (ant > boton) {
       var tam =  ant - boton;
       for (var i = 0; i < tam; i++) {
         ant_val_arr.push(chart.data.datasets[0].data.splice(0, 1));
@@ -245,7 +266,7 @@ $(document).ready(function()
         ant_lab_arr_horas.push(chart.data.labels.horas.splice(0,1));
          
       }
-    }else if(ant < boton){
+    } else if(ant < boton) {
       var tam = boton - ant;
       for (var i = 0; i < tam; i++) {
         chart.data.datasets[0].data.unshift(ant_val_arr.pop()[0]);
@@ -258,7 +279,6 @@ $(document).ready(function()
         chart.data.labels.dias.unshift(ant_lab_arr_dias.pop()[0]);
         chart.data.labels.horas.unshift(ant_lab_arr_horas.pop()[0]);
       }
-      
     }
 
     ant = boton;
@@ -270,40 +290,41 @@ $(document).ready(function()
   {
     if("PM10" === $(this).val())
     {
-      cambioParametro("PM10","24","botonPM10","Las partículas menores o iguales a 10 micras (PM10) se depositan en la región extratorácica del tracto respiratorio (nariz, boca, naso, oro y laringofarínge); contienen principalmente materiales de la corteza terrestre y se originan en su mayoría por procesos de desintegración de partículas más grandes. También pueden contener material biológico como polen, esporas, virus o bacterias o provenir de la combustión incompleta de combustibles fósiles.","PM10 (µg/m&sup3;)")
+      cambioParametro("PM10", "24", "botonPM10")
     }
     else if("PM2.5" === $(this).val())
     {
-      cambioParametro("PM2.5","24","botonPM25","Las partículas menores o iguales a 2.5 micras (PM2.5) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.", "PM2.5 (µg/m&sup3;)");
+      cambioParametro("PM2.5", "24", "botonPM25");
     }
     else if("NO2" === $(this).val())
     {
-      cambioParametro("NO2","D","botonNO2","El dióxido de nitrógeno es un compuesto químico gaseoso de color marrón amarillento, es un gas tóxico e irritante. La exposición a este gas disminuye la capacidad de difusión pulmonar.","NO2 (ppm)")
+      cambioParametro("NO2", "D",  "botonNO2")
     }
     else if("SO2D" === $(this).val())
     {
-      cambioParametro("SO2","D","botonSO2D","Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)")
+      cambioParametro("SO2", "D", "botonSO2D")
     }
     else if("SO28" === $(this).val())
     {
-      cambioParametro("SO2","8","botonSO28","Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)");
+      cambioParametro("SO2", "8", "botonSO28");
     }
     else if("SO224" === $(this).val())
     {
-      cambioParametro("SO2","24","botonSO224","Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.","SO2 (ppm)");
+      cambioParametro("SO2", "24", "botonSO224");
     }
     else if("O3D" === $(this).val())
     {
-      cambioParametro("O3","D","botonO3D","Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.","O3 (ppm)");
+      cambioParametro("O3", "D", "botonO3D");
     }
     else if("O38" === $(this).val())
     {
-      cambioParametro("O3","8","botonO38","Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.","O3 (ppm)");
+      cambioParametro("O3", "8", "botonO38");
     }
     else if("CO8" === $(this).val())
     {
-      cambioParametro("CO","8","botonCO","Es un gas incoloro e inodoro que en concentraciones altas puede ser letal ya que forma carboxihemoglobina, la cual impide la oxígenación de la sangre.","CO (ppm)");
+      cambioParametro("CO", "8", "botonCO");
     }
+    else { return 0; }
   });
 
   // go-map action
@@ -357,7 +378,7 @@ function ponerTemperatura(url)
     success: function( data, textStatus, jqxhr )
     {
       var temperatura = "";
-      for (let index = 0; index < data.results.length; index++) {
+      for (var index = 0; index < data.results.length; index++) {
         if(data.results[index].valororig <= 60 && data.results[index].valororig >= -50)
         {
           temperatura = data.results[index].valororig.toFixed(2);
@@ -367,6 +388,7 @@ function ponerTemperatura(url)
       if(temperatura !== "")
       {
         $("#temperatura_detalle").text(temperatura+' ℃');
+        $("#temperatura_detalle_m").text(temperatura + ' ℃');
       }
       else
       {
@@ -384,8 +406,8 @@ function ponerTemperatura(url)
 function buscarCiudad(idEstacion)
 {
   var city = "";
-  for (let index = 0; index < estaciones_json.length; index++) {
-    const element = estaciones_json[index];
+  for (var index = 0; index < estaciones_json.length; index++) {
+    var element = estaciones_json[index];
     if(element.id.toString() === idEstacion.toString())
     {
       city =  element.city;
@@ -395,14 +417,14 @@ function buscarCiudad(idEstacion)
   return city;
 }
 
-function cambioBotonActivo(id)
+function cambioBotonActivo(idButton)
 {
   //cambio de active boton
   $(".boton_pop").each(function()
   {
     $(this).removeClass( "active_pop" )
   });
-  $("#"+id).addClass("active_pop");
+  $("#" + idButton).addClass("active_pop");
 }
 
 function hacerFechaValida(fecha)
@@ -430,20 +452,14 @@ function convertDate(inputFormat)
 
 function options_estado()
 {
-  var options  = '<option value="0">1.-Selecciona un estado</option>';
-  for (let index = 0; index < coor_estado.length; index++)
+  var stateOptions  = '<option value="0">1.-Selecciona un estado</option>';
+  for (var index = 0; index < coor_estado.length; index++)
   {
-    const element = coor_estado[index];
-    options += '<option value="'+element.estado+'">'+element.estado+'</option>'
+    var element = coor_estado[index];
+    stateOptions += '<option value="'+element.estado+'">'+element.estado+'</option>'
   }
 
-  return options;
-}
-
-function dateMasUno(dateEvaluar, horas)
-{
-  
-  return date;
+  return stateOptions;
 }
 
 function getNewDatas(data) {
@@ -513,9 +529,9 @@ function getNewDatas(data) {
 
 function existeUltimoPromedio(e)
 {  
-  for (let l = 0; l < ultimosEstados.length; l++) 
+  for (var l = 0; l < ultimosEstados.length; l++) 
   {  
-    if(ultimosEstados[l].etiqueta == e)
+    if(ultimosEstados[l].etiqueta === e)
     {
       return l;
       break;
@@ -526,11 +542,10 @@ function existeUltimoPromedio(e)
 
 function ponerReocmendaciones()
 {
-  for (let index = 0; index < ultimosEstados.length; index++) 
+  for (var index = 0; index < ultimosEstados.length; index++) 
   {  
     var r = rangoInecc(ultimosEstados[index].parametro,ultimosEstados[index].horas);
-    if(ultimosEstados[index].valor > r)
-    {
+    if(ultimosEstados[index].valor > r) {
       $("#recomendaciones").show();
     }
   }
@@ -539,12 +554,12 @@ function ponerReocmendaciones()
 function getUltimoRango(p)
 {
   var valor = '';
-  for (let index = 0; index < ultimosEstados.length; index++) 
-  {  
+  for (var index = 0; index < ultimosEstados.length; index++) 
+  {
     if(ultimosEstados[index].etiqueta === p)
     {
       valor =  ultimosEstados[index];
-    }    
+    }
   }
 
   return valor;
@@ -560,21 +575,21 @@ function putGrafica(parametro,horas,maximo)
   var data = dataLocal.results;
   var valores = [];
   var promediosMoviles = [];
-  const hora = 3600000;
+  var hora = 3600000;
   etiquetas = [];
   lbls.days = [];
   lbls.hours = [];
   var e = parametro+''+horas;
 
   var newInd = 0;
-  for (let index = 0; index < data.length; index++) 
+  for (var index = 0; index < data.length; index++) 
   {
     if(data[index].valororig < maximo && data[index].valororig !== null && data[index].valororig >= 0 )
     {
       valores.push(data[index].valororig); 
     
       var r = existeUltimoPromedio(e);
-      if(horas == "D")
+      if(horas === "D")
       {
         if(r !== -1) //si existe se sustitulle
         {
@@ -617,10 +632,10 @@ function putGrafica(parametro,horas,maximo)
       {
         var acumulado = 0;
         var numValoresValidos = 0;
-        const dActual = hacerFechaValida(data[index].date).getTime();
+        var dActual = hacerFechaValida(data[index].date).getTime();
         var dPasada = dActual - (hora * horas);
 
-        for (let l = index; l >= index - (horas-1); l--) 
+        for (var l = index; l >= index - (horas-1); l--) 
         {
           var fechaValidar = hacerFechaValida(data[l].date);
        
@@ -671,33 +686,33 @@ function putGrafica(parametro,horas,maximo)
     }          
   }
 
-//validamos si es dato horario
+//validamos si es Promedio horario
   if(horas !== "D")
   {
     // Obtiene el último promedio
     if(promediosMoviles[promediosMoviles.length - 1] !== null  && promediosMoviles[promediosMoviles.length - 1] >= 0 )
     {
       lastAverageOrData =  promediosMoviles[promediosMoviles.length - 1] ;
-      //$('.chart-gauge').show();
+      //$(".chart-gauge").show();
     }
     else
     {
       lastAverageOrData =  0;
-      //$('.chart-gauge').hide();
+      //$(".chart-gauge").hide();
     }
     
   }else
   {
-    // Obtiene el último dato horario
+    // Obtiene el último Promedio horario
     if( valores[valores.length - 1] !== null && valores[valores.length - 1] >= 0 )
     {
       lastAverageOrData =  data[data.length - 1].valororig  ;
-      //$('.chart-gauge').show();
+      //$(".chart-gauge").show();
     }
     else
     {
       lastAverageOrData =  0;
-      //$('.chart-gauge').hide();
+      //$(".chart-gauge").hide();
     }
   }
 
@@ -720,14 +735,19 @@ function putGrafica(parametro,horas,maximo)
     label: ""
   }
 
+  var prettyParameter = parameter_decorator(parametro, false);
   //crear la label a mostrar
   if(horas !== "D") {
-    labelsData.labelInfo = "Dato horario de " + parametro + " en " + horas + "hrs";
-    labelsData.labelLimit = "Límite móvil de " + horas + "hrs";
-    labelsData.label = "Promedio móvil de " + parametro + " en " + horas + " horas";
+    labelsData.labelInfo = "Promedio horario de " + prettyParameter + " en " + horas + "hrs.";
+    labelsData.labelLimit = "Límite NOM";
+    labelsData.label = "Promedio móvil de " + horas + " hrs. para " + prettyParameter;
+    if (horas === "24")
+      labelsData.label += " **";
+    else
+      labelsData.label += "";
   } else {
-    labelsData.labelInfo = "Dato horario de " + parametro;
-    labelsData.labelLimit = "Límite móvil de 1hr";
+    labelsData.labelInfo = "Promedio horario de " + prettyParameter;
+    labelsData.labelLimit = "Límite NOM";
     labelsData.label = horas;
   }
 
@@ -827,11 +847,11 @@ function poner_botones(valores)
   });
 }
 
-function convertDate(date)
+function convertDate(dateToConvert)
 {
-  var yyyy = date.getFullYear().toString();
-  var mm = (date.getMonth()+1).toString();
-  var dd  = date.getDate().toString();
+  var yyyy = dateToConvert.getFullYear().toString();
+  var mm = (dateToConvert.getMonth()+1).toString();
+  var dd  = dateToConvert.getDate().toString();
 
   var mmChars = mm.split("");
   var ddChars = dd.split("");
@@ -854,7 +874,7 @@ function ponEstacionesSel()
   var x = document.getElementById("estado_primer_select").value;
   var contenido = '<option value="0">2.-Seleccionar estación</option>';
   var numEstaciones = 0;
-  for (let index = 0; index < estaciones_json.length; index++)
+  for (var index = 0; index < estaciones_json.length; index++)
   {
     var element =  estaciones_json[index];
     if(element.state === x && element.activa)
@@ -908,33 +928,44 @@ function llenarConstaminantes(url, parametro)
         if("PM10" === parametro)
         {
           arrPM10 = data;
-          $("#botonPM10").trigger("click");
+          cambioParametro("PM10", "24", "botonPM10");
         }
         else if("PM2.5" === parametro)
         {
           arrPM2 = data;
-          $("#botonPM25").trigger("click");
+          cambioParametro("PM2.5", "24", "botonPM25");
         }
         else if("NO2" === parametro)
         {
           arrNO2 = data;
-          $("#botonNO2").trigger("click");
+          cambioParametro("NO2", "D", "botonNO2");
         }
         else if("CO" === parametro)
         {
           arrCO = data;
-          $("#botonCO").trigger("click");
+          cambioParametro("CO", "8", "botonCO");
         }
-        else if("O3" === parametro)
+        else if ("O3" === parametro && hourSelected === "")
         {
           arrO3 = data;
-          $("#botonO3D").trigger("click");
+          cambioParametro("O3", "D", "botonO3D");
         }
-        else if("SO2" === parametro)
+        else if ("O3" === parametro && hourSelected !== "")
+        {
+          arrO3 = data;
+          cambioParametro("O3", hourSelected, "botonO3" + hourSelected);
+        }
+        else if ("SO2" === parametro && hourSelected === "")
         {
           arrSO2 = data;
-          $("#botonSO2D").trigger("click");
+          cambioParametro("SO2", "8", "botonSO28");
         }
+        else if ("SO2" === parametro && hourSelected !== "")
+        {
+          arrSO2 = data;
+          cambioParametro("SO2", hourSelected, "botonSO2" + hourSelected);
+        }
+        else { return 0; }
       }
       else
       {
@@ -948,13 +979,14 @@ function llenarConstaminantes(url, parametro)
             { 
               $(this).attr("disabled","disabled");
             }
+            else { return 0; }
           }
         );
 
         //desabilitamos el boton del parametro que estamos consultando
         if("PM2.5" === parametro)
         {
-          arrPM25 = data;
+          arrPM2 = data;
           $("#botonPM25").addClass("bloqueado");
         }
         else if("PM10" === parametro)
@@ -987,10 +1019,11 @@ function llenarConstaminantes(url, parametro)
 
           arrSO2 = data;
 
-          $("#botonSO2D").addClass("bloqueado");
+          //$("#botonSO2D").addClass("bloqueado");
           $("#botonSO28").addClass("bloqueado");
           $("#botonSO224").addClass("bloqueado");
         }
+        else { return 0; }
       }
       
       if(contador_vacios === 6)
@@ -1002,6 +1035,7 @@ function llenarConstaminantes(url, parametro)
           $(this).removeClass("bloqueado");
         });
       }
+      else { return 0; }
     },
     xhrFields: {
       withCredentials: false
@@ -1013,7 +1047,7 @@ function llenarConstaminantes(url, parametro)
 
 function generaUrl(parametro,id_estacion,horas)
 {
-  const dActual = new Date();
+  var dActual = new Date();
   var dPasada = new Date();
 
   dPasada.setHours(dActual.getHours() - horas);
@@ -1045,26 +1079,52 @@ function changeMovilOption(parametro,horas)
     $("#conataminatesMovil").val("CO8");
 }
 
-function cambioParametro(parametro, horas,id,titulo,lb)
+function parameter_decorator(parameter, isHtml) {
+  var decorator = "";
+
+  switch (parameter) {
+    case "PM10":
+      decorator = isHtml ? "PM<sub>10</sub>" : "PM₁₀";
+      break;
+    case "PM2.5":
+      decorator = isHtml ? "PM<sub>2.5</sub>" : "PM₂.₅";
+      break;
+    case "SO2":
+      decorator = isHtml ? "SO<sub>2</sub>" : "SO₂";
+      break;
+    case "NO2":
+      decorator = isHtml ? "NO<sub>2</sub>" : "NO₂";
+      break;
+    case "O3":
+      decorator = isHtml ? "O<sub>3</sub>" : "O₃";
+      break;
+    default:
+      decorator = "CO";
+      break;
+  }
+
+  return decorator;
+}
+
+function cambioParametro(parametro, horas, idButton)
 {
   $("#alerta").hide();
   $("#recomendaciones").hide();
   
-  reset_botones();
-  ponerReocmendaciones();
+  //reset_botones();
+  //ponerReocmendaciones();
   
-  if(!($("#"+id).hasClass("bloqueado")))
+  if(!($("#"+idButton).hasClass("bloqueado")))
   {
-    
-    cambioBotonActivo(id);
+    cambioBotonActivo(idButton);
     changeMovilOption(parametro,horas);
     var estado =  $("#estado_primer_select").val();
     var estacion =  $("#estaciones_select").val();
 
-    $("#contaminante_detalle").html(parametro);
-    $("#contaminante_grafica").html(parametro);
-    $("#tituloTexto").html(parametro);
-    $("#textoTitulo").html(titulo);
+    $("#contaminante_detalle").html(parameter_decorator(parametro, true));
+    $("#contaminante_grafica").html(parameter_decorator(parametro, true));
+    $("#tituloTexto").html(parameter_decorator(parametro, true));
+    $("#textoTitulo").html(pollutantsDescription[parametro]);
 
     //porEstaciones(estado,estacion,parametro,horas);
     var promedioFinal = 0;
@@ -1115,15 +1175,12 @@ function cambioParametro(parametro, horas,id,titulo,lb)
 
       label = "ppm";
     }
-    
+    else { return 0; }
 
     putGrafica(parametro, horas,maximoL);
     promedioFinal =  lastAverageOrData;
 
     var ultimoRango =  getUltimoRango(parametro+''+horas);
-
-
-
 
     if(ultimoRango !== '')
     {
@@ -1142,34 +1199,35 @@ function cambioParametro(parametro, horas,id,titulo,lb)
       $(".date-gauge").html("");
     }
     
-    
-    // if(promedioFinal > 0)
-    // {
-    //   if(maximoP < promedioFinal)
-    //     $("#recomendaciones").show();
+    if(promedioFinal > 0)
+    {
+      if(maximoP < promedioFinal)
+      {
+        $("#recomendaciones").show();      
+      }
+    }
 
-      
-    // }
     // else
     // {
     //   $(".chart-gauge").html("");
     //   $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: getUltimoRango(parametro+''+horas).toFixed(3), label: label, gaugeMaxValue: maximoP*2});
     // }
   }
+  else { return 0; }
 }
 
-function sacaDatoDiario(data,horas,max)
+function sacaDatoDiario(data,horas,maxValue)
 {
   if(horas !== "D")
   {
-    const dActual = new Date();
+    var dActual = new Date();
     var dPasada = new Date();
     dPasada.setHours(dActual.getHours() - horas);
 
     var datos =  data.results;
     var arrTemp = [];
 
-    for (let index = datos.length - 1; index > 0;  index--)
+    for (var index = datos.length - 1; index > 0;  index--)
     {
 
       var fechaValida = hacerFechaValida(datos[index]["date"]);
@@ -1189,27 +1247,27 @@ function sacaDatoDiario(data,horas,max)
     var acumulado = 0;
 
     
-    for (let index = 0; index < arrTemp.length; index++)
+    for (var index = 0; index < arrTemp.length; index++)
     {
-      
-      if(arrTemp[index].valororig < max && arrTemp[index].validoorig === 1)
-
+      if(arrTemp[index].valororig < maxValue && arrTemp[index].validoorig === 1)
       {    
         acumulado += arrTemp[index].valororig;
         promedio++;
       }
+      else { return 0; }
     }
     promedio = 0;
     acumulado = 0;
     var tamDatos = datos.length-1;
-    for (let l = tamDatos; l > tamDatos - horas; l--)
+    for (var l = tamDatos; l > tamDatos - horas; l--)
     {    
-      if(datos[l].valororig < max && datos[l].validoorig === 1)
+      if(datos[l].valororig < maxValue && datos[l].validoorig === 1)
       {   
 
         acumulado += datos[l].valororig;
         promedio++;
-      } 
+      }
+      else { return 0; }
     }
     if((arrTemp.length * .75) < promedio )
     {
@@ -1223,41 +1281,25 @@ function sacaDatoDiario(data,horas,max)
   }
   else
   {
-    if(data.results[data.results.length-1].valororig < max)
+    if(data.results[data.results.length-1].valororig < maxValue)
       return data.results[data.results.length-1].valororig;
     else
       return 0;    
   }
 }
 
-function ponContaminantesSel()
-{
-      var options = '<option value="0">3.-Selecciona Contaminante</option>'+
-      '<option value="PM10_24" title="Las partículas menores o iguales a 2.5 micras (PM2.5) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.">PM 10 µg/m&sup3;</option>'+
-          '<option value="PM2.5_24" title="Las partículas menores o iguales a 2.5 micras (PM2.5) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.">PM 2.5 µg/m&sup3;</option>'+
-          '<option value="SO2_24" title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Promedio 24 horas</option>'+
-          '<option value="SO2_8" title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Promedio 8 horas</option>'+
-          '<option value="SO2_D" title="Gas incoloro que se origina durante la quema de combustibles fósiles que contienen azufre (petróleo, carbón, entre otros). La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.">SO2 (ppm) Dato horario</option>'+
-          '<option value="O3_8" title="Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.">Ozono (O3)(ppm) Promedio 8 horas</option>'+
-          '<option value="O3_D" title="Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.">Ozono (O3)(ppm) Dato horario</option>'+
-          '<option value="NO2_24" title="El dióxido de nitrógeno es un compuesto químico gaseoso de color marrón amarillento, es un gas tóxico e irritante. La exposición a este gas disminuye la capacidad de difusión pulmonar.">NO2 (ppm)</option>'+
-          '<option value="CO_24" title="Es un gas incoloro e inodoro que en concentraciones altas puede ser letal ya que forma carboxihemoglobina, la cual impide la oxígenación de la sangre.">CO (ppm)</option>';
-
-    $("#contaminantes").html(options);
-    $("#contaminantes").trigger( "change" );
-}
-
 function buscarEstacion(id_estacion)
 {
-  var estacion = 0 ;
-  for (let index = 0; index < estaciones_json.length; index++)
+  var estacion = {};
+  for (var index = 0; index < estaciones_json.length; index++)
   {
-    var element =  estaciones_json[index];
+    var element = estaciones_json[index];
     if(element.id === id_estacion)
     {
       estacion = element;
       break;
     }
+    else { estacion = estacion; }
   }
   return estacion;
 }

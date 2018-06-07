@@ -33,18 +33,18 @@ $(document).ready(function()
         $("#fecha_detalle").html(convertDate(new Date()));
         $("#fecha_detalle_m").html(convertDate(new Date()));
 
-        $("#contaminante_detalle").html("PM10");
-        $("#contaminante_grafica").html("PM10");
-
         var objEstacion = buscarEstacion(estacion);
         
-        $("#titulo_detalle").html(buscarCiudad(estacion));
-        
+        $("#titulo_detalle").html(buscarCiudad(estacion))
         $("#estacion_detalle").html( objEstacion.city+" - "+objEstacion.nombre);
         $("#estacion_detalle_m").html("<b>"+objEstacion.city+" - "+objEstacion.nombre+"</b>");
 
-        $("#tituloTexto").html("PM10");
-        $("#textoTitulo").html("Las partículas menores o iguales a 2.5 micras (PM2.5) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.");
+        var idPollutant = "botonPM10";
+        $("#textoTitulo").html($("#" + idPollutant).attr("data-original-title"));
+        cambioBotonActivo(idPollutant);
+
+        // Set station selected (because exist 2 different ways to get station)
+        stationSelected = estacion;
 
         //vamos a llenar los arreglos de todos los coantaminantes
         llenarConstaminantes(generaUrl("PM10", estacion, (24*28)),"PM10");
@@ -53,19 +53,19 @@ $(document).ready(function()
         llenarConstaminantes(generaUrl("SO2", estacion, (24*28)),"SO2");
         llenarConstaminantes(generaUrl("O3", estacion, (24*28)),"O3");
         llenarConstaminantes(generaUrl("CO", estacion, (24*28)),"CO");
-        ponerTemperatura(generaUrl('TMP', estacion, (3)),'TMP');
+        ponerTemperatura(generaUrl("TMP", estacion, (3)),"TMP");
     });
 
 
 });
 
-function groupClick(event)
+function groupClick(e)
 {
-  var popup = event.layer._popup;
-  var estacion  = event.layer.idestacion;
-  var array  = event.layer.idarray;
+  var popup = e.layer._popup;
+  var estacion  = e.layer.idestacion;
+  var idArray  = e.layer.idarray;
 
-  var info = "<b>Estación:</b> "+estaciones_json[array].id+"<br><b>Nombre: </b>"+ estaciones_json[array].nombre +"<br><b>Código: </b>"+estaciones_json[array].codigo+'<br><div style="margin-bottom: 25px; margin-top: 25px;" class="botonera"><a class="modal_mapa" data-id="'+ estaciones_json[array].id +'">Detalle Estación</a></div>';
+  var info = "<b>Estación:</b> "+estaciones_json[idArray].id+"<br><b>Nombre: </b>"+ estaciones_json[idArray].nombre +"<br><b>Código: </b>"+estaciones_json[idArray].codigo+'<br><div style="margin-bottom: 25px; margin-top: 25px;" class="botonera"><a class="modal_mapa" data-id="'+ estaciones_json[idArray].id +'">Detalle Estación</a></div>';
 
   popup.setContent(info);
   popup.update();
