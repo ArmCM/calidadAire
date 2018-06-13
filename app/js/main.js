@@ -53,7 +53,7 @@ var pollutantsDescription = {
 
 $(document).ready(function()
 {
-  $("#estados").val("Aguascalientes");
+  $("#estados").val("0");
   $(".forLoader").removeClass("hide").slideUp();
 
   $('#infoModal').modal();
@@ -105,9 +105,7 @@ $(document).ready(function()
       $(this).attr("data-id")
     );
 
-    // Set 28 days again
-    $(".parametro").removeClass("active");
-    $("#pinta_primero").addClass("active");
+    resetButtonDays();
   });
 
   // Get states selected
@@ -148,6 +146,8 @@ $(document).ready(function()
     var idPollutant = "botonPM10";
     $("#textoTitulo").html($("#" + idPollutant).attr("data-original-title")); 
     cambioBotonActivo(idPollutant);
+
+    resetButtonDays();
 
     // Set station selected (because exist 2 different ways to get station)
     stationSelected = estacion;
@@ -405,6 +405,12 @@ function ponerTemperatura(url)
   });
 }
 
+function resetButtonDays() {
+  // Set 28 days again
+  $(".parametro").removeClass("active");
+  $("#pinta_primero").addClass("active");
+}
+
 function buscarCiudad(idEstacion)
 {
   var city = "";
@@ -630,14 +636,15 @@ function putGrafica(parametro,horas,maximo)
 
     if(horas !== "D")
     {
-      if(index >= horas-1)
+      horas = parseInt(horas);
+      if(index >= horas - 1)
       {
         var acumulado = 0;
         var numValoresValidos = 0;
         var dActual = hacerFechaValida(data[index].date).getTime();
         var dPasada = dActual - (hora * horas);
 
-        for (var l = index; l >= index - (horas-1); l--) 
+        for (var l = index; l >= index - (horas - 1); l--) 
         {
           var fechaValidar = hacerFechaValida(data[l].date);
        
@@ -652,7 +659,13 @@ function putGrafica(parametro,horas,maximo)
 
         if(numValoresValidos  >= (horas * .75)) 
         {
-          var p = acumulado/horas;
+          var p = acumulado/numValoresValidos;
+
+          if (parametro === "PM10" || parametro === "PM2.5")
+            p = Math.round(p);
+          else
+            p = p;
+
           promediosMoviles.push(p);
           var r = existeUltimoPromedio(e);
           
@@ -687,6 +700,7 @@ function putGrafica(parametro,horas,maximo)
       promediosMoviles.push(null); 
     }          
   }
+horas = String(horas);
 
 //validamos si es Promedio horario
   if(horas !== "D")
@@ -737,16 +751,22 @@ function putGrafica(parametro,horas,maximo)
     label: ""
   }
 
+  // Reset the #note-nom-24hrs
+  $("#note-nom-24hrs").css("display", "none");
+
   var prettyParameter = parameter_decorator(parametro, false);
   //crear la label a mostrar
   if(horas !== "D") {
     labelsData.labelInfo = "Promedio horario de " + prettyParameter + " en " + horas + "hrs.";
     labelsData.labelLimit = "Límite NOM";
     labelsData.label = "Promedio móvil de " + horas + " hrs. para " + prettyParameter;
-    if (horas === "24")
+    if (horas === "24") {
       labelsData.label += " **";
-    else
+      $("#note-nom-24hrs").css("display", "block");
+    } else {
       labelsData.label += "";
+      $("#note-nom-24hrs").css("display", "none");
+    }
   } else {
     labelsData.labelInfo = "Promedio horario de " + prettyParameter;
     labelsData.labelLimit = "Límite NOM";
