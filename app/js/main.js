@@ -700,6 +700,7 @@ function putGrafica(parametro,horas,maximo)
       promediosMoviles.push(null); 
     }          
   }
+horas = String(horas);
 
 //validamos si es Promedio horario
   if(horas !== "D")
@@ -749,6 +750,9 @@ function putGrafica(parametro,horas,maximo)
     labelLimit: "",
     label: ""
   }
+
+  // Reset the #note-nom-24hrs
+  $("#note-nom-24hrs").css("display", "none");
 
   var prettyParameter = parameter_decorator(parametro, false);
   //crear la label a mostrar
