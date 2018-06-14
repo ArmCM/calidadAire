@@ -210,8 +210,7 @@ $(document).ready(function()
           },
           label: function(tooltipItem, data) {
             var dat = data.datasets[tooltipItem.datasetIndex].data[tooltipItem['index']].toString();
-            return data.datasets[tooltipItem.datasetIndex].label + ': ' +
-                   dat.substring(0, dat.indexOf('.') + 4);
+            return data.datasets[tooltipItem.datasetIndex].label + ': ' + Math.round10(dat, -3);
           },
         },
       },
@@ -220,7 +219,7 @@ $(document).ready(function()
           ticks: {
             callback: function (value, index, values) {
               var val = value.toString();
-              return val.substring(0, val.indexOf('.') + 4) + extension;
+              return Math.round10(val, -3) + extension;
             },
             padding: 5,
             min: 0
@@ -663,8 +662,10 @@ function putGrafica(parametro,horas,maximo)
 
           if (parametro === "PM10" || parametro === "PM2.5")
             p = Math.round(p);
+          else if (parametro === "CO")
+            p = Math.round10(p, -2);
           else
-            p = p;
+            p = Math.round10(p, -3);
 
           promediosMoviles.push(p);
           var r = existeUltimoPromedio(e);
@@ -700,7 +701,7 @@ function putGrafica(parametro,horas,maximo)
       promediosMoviles.push(null); 
     }          
   }
-horas = String(horas);
+horas = horas.toString();
 
 //validamos si es Promedio horario
   if(horas !== "D")
@@ -735,7 +736,7 @@ horas = String(horas);
   // Corta el valor a sólo 3 decimales
   if (lastAverageOrData !== null) {
     lastAverageOrData = lastAverageOrData.toString();
-    lastAverageOrData = lastAverageOrData.substring(0, lastAverageOrData.indexOf('.') + 4);
+    lastAverageOrData = Math.round10(lastAverageOrData, -3);
   }
 
   var rango = rangoInecc(parametro,horas);
@@ -1207,7 +1208,7 @@ function cambioParametro(parametro, horas, idButton)
     if(ultimoRango !== '')
     {
       var vString = ultimoRango.valor.toString();
-      vString = vString.substring(0, vString.indexOf('.') + 4);
+      vString = Math.round10(vString, -3);
       $(".chart-gauge").html("");
       $(".chart-gauge").gaugeIt({ selector: ".chart-gauge", value: vString,label:label,gaugeMaxValue:maximoP*2});
 
