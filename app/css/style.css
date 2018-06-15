@@ -289,6 +289,8 @@ hr.red {
   font-weight: 300;
 }
 
+.modal-dialog { margin-top: 10px !important; }
+
 .modal_mapa { cursor: pointer; }
 .modal-body { padding: 40px 20px 20px; }
 @media screen and (min-width: 768px) and (max-width: 991px) {
