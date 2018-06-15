@@ -326,6 +326,8 @@ $(document).ready(function()
       cambioParametro("CO", "8", "botonCO");
     }
     else { return 0; }
+
+    resetMobileScroll("#myModal");
   });
 
   // go-map action
@@ -369,6 +371,14 @@ $(document).ready(function()
   $(window).resize(function() { setCoverVideo(); });
   setCoverVideo();
 }); // fin de document ready
+
+// Reset scrolling error for modals
+function resetMobileScroll(element) {
+  $(element).css('-webkit-overflow-scrolling', 'inherit');
+  setTimeout(function () {
+    $(element).css('-webkit-overflow-scrolling', 'touch');
+  });
+}
 
 function ponerTemperatura(url)
 {
@@ -946,6 +956,8 @@ function llenarConstaminantes(url, parametro)
       if(data.results.length > 0)
       {
         $("#myModal").modal("show");
+        resetMobileScroll("#myModal");
+
         $(".forLoader").removeClass("hide").slideUp();
 
         if("PM10" === parametro)
