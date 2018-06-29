@@ -1,8 +1,15 @@
-//- app/pug/layout.jade
-
 doctype html
-html(lang="mx-es")
+html(lang='en')
   head
     include includes/head.pug
-  body
-    block content
+  body.page(cz-shortcut-listen='true')
+    //- Variables block
+    block global_variables
+
+    main
+      block content
+    
+    script(src='https://framework-gb.cdn.gob.mx/gobmx.js')
+
+    if index
+      include includes/index-scripts.pug

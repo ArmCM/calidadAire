@@ -7,7 +7,6 @@ const clean = require('gulp-clean');
 const pug = require('gulp-pug');
 const secuence = require('gulp-run-seq');
 
-var production = false;
 var jssources = [];
 var csssource = [];
 
@@ -17,7 +16,7 @@ gulp.task('views', function buildHTML() {
   return gulp.src('app/pug/views/*.pug')
     .pipe(pug({
       data: {
-        production: production,
+        production: process.env.NODE_ENV === 'production' ? true : false,
         sources: jssources,
         cssstyles: csssource
       }
@@ -32,7 +31,6 @@ gulp.task('cleanercss', () => gulp.src('app/css/dist/*', { read: false })
   .pipe(clean()));
 
 gulp.task('compressjs', ['cleanerjs'], (js) => {
-  production = true;
   pump([
     gulp.src('app/js/*.js')
       .pipe(rename(function(path) {
@@ -47,7 +45,6 @@ gulp.task('compressjs', ['cleanerjs'], (js) => {
 });
 
 gulp.task('compresscss', ['cleanercss'], () => {
-  production = true;
   gulp.src('app/css/*.css')
     .pipe(rename(function (path) {
       path.basename += Date.now();
@@ -57,6 +54,6 @@ gulp.task('compresscss', ['cleanercss'], () => {
     .pipe(gulp.dest('app/css/dist'))
 });
 
-gulp.task('compressjs:watch', () => {
-  gulp.watch('app/js/*.js', ['compressjs']);
+gulp.task('watch', () => {
+  gulp.watch(['app/js/*.js', 'app/css/*.css', 'app/pug/views/*.pug'], ['compressjs', 'compresscss', 'views']);
 });

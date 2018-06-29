@@ -1,0 +1,89 @@
+//- app/pug/views/preguntas.pug
+
+extends ../layout.pug
+
+block content
+  .container
+    .row
+      .col-xs-12
+        breadcrumb
+          ul.breadcrumb
+            li
+              a(ui-sref='landing', href='/')
+                i.glyphicon.glyphicon-home
+            // ngRepeat: crumb in crumbs
+            li.ng-scope(ng-repeat='crumb in crumbs')
+              a.ng-binding(href='index.html')
+                | Calidad del aire
+            li.ng-scope(ng-repeat='crumb in crumbs')
+              a.ng-binding
+                | Preguntas frecuentes
+            // end ngRepeat: crumb in crumbs
+    .row
+      .col-xs-12
+        h3 Preguntas frecuentes
+        hr.red
+    .row
+      .col-xs-12
+        #accordion.panel-group(role='tablist', aria-multiselectable='true')
+          .panel.panel-default
+            #headingOne.panel-heading(role='tab')
+              h4.panel-title
+                a(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapseOne', aria-expanded='true', aria-controls='collapseOne')
+                  | ¿Qué información puedes encontrar aquí?
+            #collapseOne.panel-collapse.collapse.in(role='tabpanel', aria-labelledby='headingOne')
+              .panel-body
+                p
+                  | Información de calidad del aire de la última hora hasta 28 días anteriores, para los contaminantes criterio: Ozono (O
+                  sub 3
+                  | ),
+                  | Dióxido de Azufre (SO
+                  sub 2
+                  | ), Monóxido de Carbono (CO), Dióxido de Nitrógeno (NO
+                  sub 2
+                  | ), partículas menores o iguales a 10 micras (PM
+                  sub 10
+                  | ),
+                  | partículas menores o iguales a 2.5 micras (PM
+                  sub 2.5
+                  | ) que afectan nuestra salud.
+          .panel.panel-default
+            #headingTwo.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapseTwo', aria-expanded='false', aria-controls='collapseTwo')
+                  | ¿De dónde proviene la información?
+            #collapseTwo.panel-collapse.collapse(role='tabpanel', aria-labelledby='headingTwo')
+              .panel-body
+                p
+                  | De 131 estaciones automáticas de monitoreo operadas por diversos gobiernos estatales y municipales en México, que envían
+                  | información al Instituto Nacional de Ecología y Cambio Climático.
+          .panel.panel-default
+            #headingThree.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapseThree', aria-expanded='false', aria-controls='collapseThree')
+                  | ¿Qué uso le puedo dar a los datos que arroja?
+            #collapseThree.panel-collapse.collapse(role='tabpanel', aria-labelledby='headingThree')
+              .panel-body
+                p
+                  | Esta información será de utilidad para estar informado de los niveles de contaminación del aire que hay en tu localidad y tomar las acciones necesarias para proteger tu salud.
+          .panel.panel-default
+            #heading4.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse4', aria-expanded='false', aria-controls='collapse4')
+                  | ¿Con quién puedo contactar si tengo dudas sobre estos datos?
+            #collapse4.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading4')
+              .panel-body
+                p
+                  | Consulta también en 
+                  a(href='http://sinaica.inecc.gob.mx', target='_blank') sinaica.inecc.gob.mx
+                  | , que es la fuente que concentra los datos que aquí se reportan, página desarrollada
+                  | por el Instituto Nacional de Ecología y Cambio Climático, en dicha página encontrarás la información de contacto de los generadores
+                  | de los datos de calidad del aire mostrados.
+          .panel.panel-default
+            #heading6.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse6', aria-expanded='false', aria-controls='collapse6')
+                  | ¿Cuantas estaciones automáticas de monitoreo de calidad del aire existen en México?
+            #collapse6.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading6')
+              .panel-body
+                p 174

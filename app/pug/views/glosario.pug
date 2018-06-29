@@ -1,0 +1,262 @@
+//- app/pug/views/glosario.pug
+
+extends ../layout.pug
+
+block content
+  .container
+    .row
+      .col-xs-12
+        breadcrumb
+          ul.breadcrumb
+            li
+              a(ui-sref='landing', href='/')
+                i.glyphicon.glyphicon-home
+            // ngRepeat: crumb in crumbs
+            li.ng-scope(ng-repeat='crumb in crumbs')
+              a.ng-binding(href='index.html')
+                | Calidad del aire
+            li.ng-scope(ng-repeat='crumb in crumbs')
+              a.ng-binding
+                | Glosario
+            // end ngRepeat: crumb in crumbs
+    .row
+      .col-xs-12
+        h3 Glosario de términos
+        hr.red
+    .row
+      .col-xs-12
+        #accordion.panel-group(role='tablist', aria-multiselectable='true')
+          .panel.panel-default
+            #headingOne.panel-heading(role='tab')
+              h4.panel-title
+                a(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapseOne', aria-expanded='true', aria-controls='collapseOne')
+                  | Aire limpio
+            #collapseOne.panel-collapse.collapse.in(role='tabpanel', aria-labelledby='headingOne')
+              .panel-body
+                p
+                  | El aire es un elemento esencial para la vida de todos los seres vivos que habitamos el planeta y está compuesto en porcentaje
+                  | de volumen de aire seco, por los gases: nitrógeno en un 78%, oxígeno en un 21% y gases inertes en un 1%, que se mantienen
+                  | virtualmente constantes en todo el planeta.
+          .panel.panel-default
+            #headingTwo.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapseTwo', aria-expanded='false', aria-controls='collapseTwo')
+                  | Calidad del aire
+            #collapseTwo.panel-collapse.collapse(role='tabpanel', aria-labelledby='headingTwo')
+              .panel-body
+                p
+                  | Estado de la concentración de los diferentes contaminantes atmosféricos en un periodo de tiempo y lugar determinados, cuyos
+                  | niveles máximos de concentración se establecen en las normas oficiales mexicanas y que son catalogados por un índice estadístico
+                  | atendiendo sus efectos en la salud humana.
+          .panel.panel-default
+            #headingThree.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapseThree', aria-expanded='false', aria-controls='collapseThree')
+                  | Concentración de contaminantes
+            #collapseThree.panel-collapse.collapse(role='tabpanel', aria-labelledby='headingThree')
+              .panel-body
+                p
+                  | Cantidad de contaminante contenida en un determinado volumen de aire.
+          .panel.panel-default
+            #heading4.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse4', aria-expanded='false', aria-controls='collapse4')
+                  | Contaminantes criterio
+            #collapse4.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading4')
+              .panel-body
+                p
+                  | Aquellos contaminantes normados a los que se les han establecido un límite máximo de concentración en el aire ambiente,
+                  | con la finalidad de proteger la salud humana y asegurar el bienestar de la población. Estos son: el ozono (O
+                  sub 3
+                  | ), el monóxido
+                  |                   de carbono (CO), el dióxido de azufre (SO
+                  sub 2
+                  | ), el dióxido de nitrógeno (NO
+                  sub 2
+                  | ), el plomo (Pb), las partículas suspendidas menores
+                  |                   a 10 micrómetros (PM
+                  sub 10
+                  | ) y partículas suspendidas menores a 2.5 micrómetros (PM
+                  sub 2.5
+                  | )
+          .panel.panel-default
+            #heading5.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse5', aria-expanded='false', aria-controls='collapse5')
+                  | Contaminantes primarios
+            #collapse5.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading5')
+              .panel-body
+                p
+                  | Aquellos procedentes directamente de las fuentes de emisión, por ejemplo: plomo (Pb), monóxido de carbono (CO), óxidos de
+                  | azufre (SO
+                  sub x
+                  | ), óxidos de nitrógeno (NO
+                  sub x
+                  | ), hidrocarburos (HC), material particulado, entre otros.
+          .panel.panel-default
+            #heading6.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse6', aria-expanded='false', aria-controls='collapse6')
+                  | Contaminantes secundarios
+            #collapse6.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading6')
+              .panel-body
+                p
+                  | Aquellos originados en el aire por la interacción entre dos o más contaminantes primarios, o por sus reacciones con los
+                  | componentes naturales de la atmósfera. Por ejemplo: ozono (O
+                  sub 3
+                  | ), peroxiacetil-nitrato (PAN), sulfatos (SO
+                  sub 4
+                  | ), nitratos (NO
+                  sub 3
+                  | ),
+                  |                   ácido sulfúrico (H
+                  sub 2
+                  | SO
+                  sub 4
+                  | ), entre otros.
+          .panel.panel-default
+            #heading20.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse21', aria-expanded='false', aria-controls='collapse21')
+                  | Dióxido de azufre (SO
+                  sub 2
+                  | )
+            #collapse21.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading20')
+              .panel-body
+                p
+                  | El SO
+                  sub 2
+                  |  pertenece a la familia de los óxidos de azufre (SO
+                  sub x
+                  | ) que son gases incoloros que se forman al quemar combustible
+                  |                   que contiene azufre y tienden a disolverse fácilmente en agua. La fuente primaria de SO
+                  sub x
+                  |  es la quema de combustibles fósiles,
+                  |                   que contienen azufre en su composición, como el combustóleo y en particular, el carbón. La exposición a SO
+                  sub 2
+                  |  produce irritación
+                  |                   e inflamación de las mucosas conjuntival y respiratoria.
+          .panel.panel-default
+            #heading21.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse22', aria-expanded='false', aria-controls='collapse22')
+                  | Dióxido de nitrógeno (NO
+                  sub 2
+                  | )
+            #collapse22.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading21')
+              .panel-body
+                p
+                  | El NO
+                  sub 2
+                  |  es un compuesto químico gaseoso de color marrón amarillento formado por la combinación de un átomo de nitrógeno y
+                  |                   dos de oxígeno. Es un gas tóxico e irritante. El aumento progresivo en la exposición al NO
+                  sub 2
+                  |  puede producir problemas de percepción
+                  |                   olfativa, molestias respiratorias, dolores respiratorios agudos y edema pulmonar.
+          .panel.panel-default
+            #heading22.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse23', aria-expanded='false', aria-controls='collapse23')
+                  | Material Particulado (PM)
+            #collapse23.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading22')
+              .panel-body
+                p
+                  | El material particulado es una mezcla compleja de sustancias en estado líquido o sólido, que permanece suspendida en la
+                  | atmósfera por periodos variables de tiempo. El espectro de efectos en la salud es amplio, pero afectan en particular a los
+                  | sistemas respiratorio y cardiovascular. Toda la población puede ser afectada, aunque la susceptibilidad puede variar con
+                  | el estado de salud o la edad, siendo los niños menores de 5 años, los adultos mayores de 65 y las personas con padecimientos
+                  | previos, los grupos de mayor susceptibilidad.
+          .panel.panel-default
+            #heading23.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse24', aria-expanded='false', aria-controls='collapse24')
+                  | Plomo (Pb)
+            #collapse24.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading23')
+              .panel-body
+                p
+                  | Es un metal que se usaba frecuentemente para fabricar tuberías de agua, recipientes para alimentos, pinturas y gasolina.
+                  | La fuente primaria de contaminación del aire por plomo ha sido el uso de combustibles con plomo en los automóviles. Debido
+                  | a que el plomo no se consume en el proceso de combustión, se emite como material particulado. El plomo es un contaminante
+                  | tóxico para los humanos, su difícil remoción del cuerpo hace que se acumule en varios órganos y pueda dañar el sistema nervioso
+                  | central. La intoxicación aguda produce síntomas como diarrea, vómito, cólico, convulsiones y dolor de cabeza.
+                  a(href='http://www.uniplom.es/fuentes.htm', target='_blank') Más información
+          .panel.panel-default
+            #heading24.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse25', aria-expanded='false', aria-controls='collapse25')
+                  | Monóxido de carbono (CO)
+            #collapse25.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading24')
+              .panel-body
+                p
+                  | Es un gas incoloro e inodoro que en concentraciones altas puede ser letal, pues impide el transporte del oxígeno a la sangre,
+                  | lo que puede ocasionar una reducción significativa en la dotación de oxígeno al corazón.
+          .panel.panel-default
+            #heading25.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#collapse26', aria-expanded='false', aria-controls='collapse26')
+                  | Ozono (O
+                  sub 3
+                  | )
+            #collapse26.panel-collapse.collapse(role='tabpanel', aria-labelledby='heading25')
+              .panel-body
+                p
+                  | Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales. El ozono es un contaminante secundario que
+                  | se forma mediante la reacción química del dióxido de nitrógeno (NO
+                  sub 2
+                  | ) y compuestos orgánicos volátiles (COV) en presencia
+                  |                   de la luz solar. El ozono puede ocasionar inflamación pulmonar, depresión del sistema inmunológico frente a infecciones pulmonares,
+                  |                   cambios agudos en la función, estructura y metabolismo pulmonar y efectos sistémicos en órganos blandos como el hígado.
+          .panel.panel-default
+            #ccvc.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#ccvc-info', aria-expanded='false', aria-controls='ccvc-info')
+                  | Los Contaminantes Climáticos de Vida Corta (CCVC)
+            #ccvc-info.panel-collapse.collapse(role='tabpanel', aria-labelledby='ccvc')
+              .panel-body
+                p
+                  | Se denominan así porque permanecen en la atmósfera durante periodos breves ya sean días, o décadas, siendo perjudiciales
+                  | durante ese lapso de tiempo, para la salud humana, la agricultura y los ecosistemas. Los CCVC son el carbono negro (CN),
+                  | el metano (CH
+                  sub 4
+                  | ), el ozono troposférico (O
+                  sub 3
+                  | ) y los hidrofluorocarbonos (HFC´s).
+          .panel.panel-default
+            #sampling-station.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#sampling-station-info', aria-expanded='false', aria-controls='sampling-station-info')
+                  | Estación de muestreo
+            #sampling-station-info.panel-collapse.collapse(role='tabpanel', aria-labelledby='sampling-station')
+              .panel-body
+                p
+                  | Uno o más instrumentos diseñados para recolectar muestras de aire ambiente con el fin de evaluar la calidad del aire en
+                  | un área determinada.
+          .panel.panel-default
+            #monitoring-station.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#monitoring-station-info', aria-expanded='false', aria-controls='monitoring-station-info')
+                  | Estación de monitoreo
+            #monitoring-station-info.panel-collapse.collapse(role='tabpanel', aria-labelledby='monitoring-station')
+              .panel-body
+                p
+                  | Está integrada por uno o más instrumentos, diseñados para medir de forma continua, la concentración de contaminantes en
+                  | aire ambiente para evaluar la calidad del aire en un área determinada.
+          .panel.panel-default
+            #sampling-monitoring.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#sampling-monitoring-info', aria-expanded='false', aria-controls='sampling-monitoring-info')
+                  | Red de muestreo y/o monitoreo
+            #sampling-monitoring-info.panel-collapse.collapse(role='tabpanel', aria-labelledby='sampling-monitoring')
+              .panel-body
+                p
+                  | Conjunto de estaciones que miden la calidad del aire en una región determinada.
+          .panel.panel-default
+            #air-quality-monitoring.panel-heading(role='tab')
+              h4.panel-title
+                a.collapsed(role='button', data-toggle='collapse', data-parent='#accordion', href='#air-quality-monitoring-info', aria-expanded='false', aria-controls='air-quality-monitoring-info')
+                  | Sistemas de monitoreo de la calidad del aire
+            #air-quality-monitoring-info.panel-collapse.collapse(role='tabpanel', aria-labelledby='air-quality-monitoring')
+              .panel-body
+                p
+                  | Un sistema de monitoreo consiste en un conjunto organizado de recursos humanos, técnicos y administrativos empleados para
+                  | operar una o un conjunto de estaciones de monitoreo y/o muestreo que miden la calidad del aire en una zona o región.

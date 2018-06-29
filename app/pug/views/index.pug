@@ -1,0 +1,277 @@
+//- app/pug/views/index.pug
+
+extends ../layout.pug
+
+block global_variables
+  - var index = true
+
+block content
+  .beta BETA
+  #forLoader1.forLoader
+    .loader
+  #videoBlock.cabezera
+    video#video(preload='preload', autoplay='autoplay', loop='loop', playsinline='', muted='', poster='imagenes/back.jpg')
+      source(src='imagenes/nubes.mp4', type='video/mp4')
+    .section.no-pad-bot.move-up
+      .container
+        .row
+          .col-xs-12.text-center
+            h2 Calidad del Aire
+            p
+              strong
+                i Selecciona tu estado y estación para obtener información
+        .row
+          .col-xs-12.text-center.margen_arriba_g
+            .base_botones
+              select#estado_primer_select.browser-default.contaminantes(name='')
+              select#estaciones_select.browser-default.contaminantes(name='')
+                option(value='0') 2.-Selecciona una estación
+          .col-xs-12.text-center
+            h5.white-text
+              span#contaminante_titulo
+                a(href='preguntas.html') Preguntas frecuentes
+                |  |  
+                a(href='glosario.html') Glosario
+                |  |  
+                a(href='http://sinaica.inecc.gob.mx/pags/noms.php', target='_blank') NOM Salud
+    #go-map
+      i.material-icons keyboard_arrow_down
+  #map-section.container.hidden-xs
+    .row.mapa_titulo
+      .col-xs-12
+        h2 Estaciones de medición de contaminantes
+        hr.red
+      .col-xs-3
+        .input-field.col.s6.m2.l2
+          select#estados.form-control(name='estados')
+            option(value='0', disabled='', selected='') Selecciona un estado
+            option(value='Aguascalientes') Aguascalientes
+            option(value='Baja California') Baja California
+            option(value='Baja California Sur') Baja California Sur
+            option(value='Campeche') Campeche
+            option(value='Chiapas') Chiapas
+            option(value='Chihuahua') Chihuahua
+            option(value='Ciudad de México') Ciudad de México
+            option(value='Coahuila') Coahuila
+            option(value='Colima') Colima
+            option(value='Durango') Durango
+            option(value='Guanajuato') Guanajuato
+            option(value='Guerrero') Guerrero
+            option(value='Hidalgo') Hidalgo
+            option(value='Jalisco') Jalisco
+            option(value='México') México
+            option(value='Michoacán') Michoacán
+            option(value='Morelos') Morelos
+            option(value='Nayarit') Nayarit
+            option(value='Nuevo León') Nuevo León
+            option(value='Oaxaca') Oaxaca
+            option(value='Puebla') Puebla
+            option(value='Querétaro') Querétaro
+            option(value='Quintana Roo') Quintana Roo
+            option(value='San Luis Potosí') San Luis Potosí
+            option(value='Sinaloa') Sinaloa
+            option(value='Sonora') Sonora
+            option(value='Tabasco') Tabasco
+            option(value='Tamaulipas') Tamaulipas
+            option(value='Tlaxcala') Tlaxcala
+            option(value='Veracruz') Veracruz
+            option(value='Yucatán') Yucatán
+            option(value='Zacatecas') Zacatecas
+  .container
+    .row
+      .col.col-xs-12.hidden-xs
+        #mapid
+  .container.hidden-xs
+    .row
+      .col.col-xs-12
+        h3 Datos
+        hr.red
+        .data-table
+          table.table
+            thead
+              tr
+                th Nombre
+                th Institución
+                th Formato
+            tbody
+              tr#dato(data-href='https://datos.gob.mx/busca/dataset/proveedores-comercializacion-y-cultivos')
+                td#nombreDato Calidad de aire
+                td#institucionDato(width='25%') INECC
+                td(width='10%')
+                  a#tipoDato.dataset-format(href='https://datos.gob.mx/busca/organization/inecc', data-format='XLS') JSON
+  // Info modal
+  #infoModal.modal.fade(tabindex='-1', role='dialog')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') ×
+          h4 Información
+        .modal-body
+          p
+            | En este sitio encontrarás los niveles de contaminación que afectan la calidad del aire de las localidades donde se encuentran
+            | las 131 estaciones automáticas de monitoreo que comparten datos de calidad del aire al Sistema Nacional de Información de
+            | la Calidad del Aire (SINAICA) a lo largo del territorio nacional.
+          p
+            | Estas estaciones son operadas por personal de los gobiernos de estados y/o municipios, siendo el Instituto Nacional de Ecología
+            | y Cambio Climático (INECC) quién colecta la información y la difunde a través del SINAICA.
+          p
+            | Para mayor información, consulta las secciones de preguntas frecuentes, el glosario de términos y las Normas Oficiales Mexicanas
+            | en materia de salud.
+  // Modal
+  #alertModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+    .modal-dialog.modal-sm(role='document')
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') ×
+          h4#myModalLabel.modal-title Mensaje
+        .modal-body
+          | El parámetro seleccionado no cuenta con lecturas en los últimos días.
+        .modal-footer
+          button.btn.btn-primary(type='button', data-dismiss='modal')  Aceptar
+  // Modal
+  #myModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') ×
+          p.titulo
+            strong#titulo_detalle Ciudad Fernández
+        .modal-body
+          // esto sera el modal
+          .row
+            .col-xs-12
+              #alerta.alert.alert-danger
+                | No es posible obtener el valor solicitado para este día.
+            .col-xs-3.hidden-xs
+              .col-xs-4
+                img.img-responsive(src='imagenes/fecha.png')
+              .col-xs-8
+                p
+                  b Fecha
+                p#fecha_detalle 24/05/17
+              .col-xs-4
+                img.img-responsive(src='imagenes/estacion.png')
+              .col-xs-8
+                p
+                  b Estación:
+                p#estacion_detalle XAL-Xalostoc
+              .col-xs-4.temperatura
+                img.img-responsive(src='imagenes/temperatura.png')
+              .col-xs-8.temperatura
+                p
+                  b Temperatura:
+                p#temperatura_detalle
+              .col-xs-4
+                img.img-responsive(src='imagenes/contaminante.png')
+              .col-xs-8
+                p
+                  b Contaminante:
+                p#contaminante_detalle
+                  | PM
+                  sub 10
+                  | , 104
+            .col-xs-9.hidden-xs
+              .col-xs-12
+                p.titulo
+                  strong
+                    | Valores máximos registrados del contaminante 
+                    span#contaminante_grafica  XXX 
+              #max-values.margenes_pop
+                .row
+                  .col-xs-4
+                    p#botonPM10.active_pop.boton_pop(data-toggle='tooltip', data-id='PM10', data-hour='24', data-placement='bottom', data-code='PM10 (µg/m³)', data-title='Las partículas menores o iguales a 10 micras (PM₁₀) se depositan en la región extratorácica del tracto respiratorio (nariz, boca, naso, oro y laringofarínge); contienen principalmente materiales de la corteza terrestre y se originan en su mayoría por procesos de desintegración de partículas más grandes. También pueden contener material biológico como\
+                    polen, esporas, virus o bacterias o provenir de la combustión incompleta de combustibles fósiles.')
+                      | PM
+                      sub 10
+                      |  (µg/m³) 24 horas
+                  .col-xs-4
+                    p#botonPM25.boton_pop(data-toggle='tooltip', data-id='PM2.5', data-hour='24', data-placement='bottom', data-code='PM25; (µg/m³)', data-title='Las partículas menores o iguales a 2.5 micras (PM₂.₅) están formadas primordialmente por gases y por material proveniente de la combustión. Se depositan fundamentalmente en la región traqueobronquial (tráquea hasta bronquiolo terminal), aunque pueden ingresar a los alvéolos.')
+                      | PM
+                      sub 2.5
+                      |  (µg/m³) 24 horas
+                  .col-xs-4
+                    p#botonNO2.boton_pop(data-toggle='tooltip', data-id='NO2', data-hour='D', data-placement='bottom', data-code='NO2 (ppm)', data-title='El dióxido de nitrógeno es un compuesto químico gaseoso de color marrón amarillento, es un gas tóxico e irritante. La exposición a este gas disminuye la capacidad de difusión pulmonar.')
+                      | NO
+                      sub 2
+                      |  (ppm) Promedio horario
+                .row
+                  .col-xs-4
+                    p#botonSO28.boton_pop(data-toggle='tooltip', data-id='SO2', data-hour='8', data-placement='bottom', data-code='SO2 (ppm)', data-title='Gas incoloro que se forma al quemar combustibles fósiles que contienen azufre. La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.')
+                      | SO
+                      sub 2
+                      |  (ppm) 8 horas
+                  .col-xs-4
+                    p#botonSO224.boton_pop(data-toggle='tooltip', data-id='SO2', data-hour='24', data-placement='bottom', data-code='SO2 (ppm)', data-title='Gas incoloro que se forma al quemar combustibles fósiles que contienen azufre. La exposición a niveles altos de este contaminante produce irritación e inflamación de garganta y bronquios.')
+                      | SO
+                      sub 2
+                      |  (ppm) 24 horas
+                  .col-xs-4
+                    p#botonCO.boton_pop(data-toggle='tooltip', data-id='CO', data-hour='8', data-placement='bottom', data-code='C0 (ppm)', data-title='Es un gas incoloro e inodoro que en concentraciones altas puede ser letal ya que forma carboxihemoglobina, la cual impide la oxigenación de la sangre.') CO (ppm) 8 horas
+                .row
+                  .col-xs-4
+                    p#botonO3D.boton_pop(data-toggle='tooltip', data-id='O3', data-hour='D', data-placement='bottom', data-code='O3 (ppm)', data-title='Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.')
+                      | O
+                      sub 3
+                      |  (ppm) Promedio horario
+                  .col-xs-4
+                    p#botonO38.boton_pop(data-toggle='tooltip', data-id='O3', data-hour='8', data-placement='bottom', data-code='O3 (ppm)', data-title='Es un compuesto gaseoso incoloro, que posee la capacidad de oxidar materiales, y causa irritación ocular y en las vías respiratorias.')
+                      | O
+                      sub 3
+                      |  (ppm) 8 horas
+            .col-xs-12.hidden-sm.hidden-md.hidden-lg.text-center
+              p
+                span#estacion_detalle_m XAL-Xalostoc 
+                span#fecha_detalle_m
+                  b 24/05/17
+              p.temperatura
+                strong Temperatura:
+                span#temperatura_detalle_m 20 ℃
+              select#conataminatesMovil(name='conataminatesMovil')
+                option(value='PM10') PM₁₀ (µg/m³) 24 horas
+                option(value='PM2.5') PM₂.₅ (µg/m³) 24 horas
+                option(value='NO2') NO₂ (ppm) Promedio horario
+                option(value='SO28') SO₂ (ppm) 8 horas
+                option(value='SO224') SO₂ (ppm) 24 horas
+                option(value='CO8') CO (ppm) 8 horas
+                option(value='O3D') O₃ (ppm) Promedio horario
+                option(value='O38') O₃ (ppm) 8 horas
+          .row
+            .col-xs-12.col-sm-4.text-center
+              .chart-gauge
+              .date-gauge
+            .col-xs-12.col-sm-8
+              .col-xs-12
+                h5#tituloTexto parametro
+                p#textoTitulo
+                  | Lorem ipsum dolor sit, amet consectetur adipisicing elit. Molestias, delectus voluptate error libero, repudiandae
+                #recomendaciones
+                  h6 Recomendaciones
+                  p
+                    | Reducir el tiempo de exposición en exteriores, sobre todo de sectores vulnerables
+                  ul
+                    li Niños
+                    li Adultos mayores
+                    li Mujeres embarazadas
+                    li Personas con problemas respiratorios y cardiovasculares
+                  p Evitar salir a realizar actividades deportivas.
+          .row.hidden-xs
+            .col-xs-12.offset-m1.offset-l2
+              canvas#myChart
+            .col-xs-12.botonera
+              a.parametro(href='#') 3 días
+              a.parametro(href='#') 7 días
+              a.parametro(href='#') 14 días
+              a#pinta_primero.parametro.active(href='#') 28 días
+            input#estacion_id(type='hidden', name='estacion', value='')
+            input#ciudad(type='hidden', name='ciudad', value='')
+            .col-md-12
+              p.info-text *Datos preliminares del SMCA que no han pasado por el proceso de validación
+              p#note-nom-24hrs.info-text
+                | **La NOM correspondiente establece el uso de promedios diarios, pero a fin de conocer la evolución del contaminante hora
+                | a hora se emplean los promedios móviles de 24 hrs.
+        // fin del body
+        .modal-footer
+          button.btn.btn-default(type='button', data-dismiss='modal') Cerrar

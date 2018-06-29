@@ -2,9 +2,11 @@
   "name": "calidad-aire",
   "version": "1.0.0",
   "description": "En este sitio encontrarás los niveles de contaminación que afectan la calidad del aire de las localidades donde se encuentran las 131 estaciones automáticas de monitoreo que comparten datos de calidad del aire al Sistema Nacional de Información de la Calidad del Aire (SINAICA) a lo largo del territorio nacional.",
-  "main": "index.js",
+  "main": "app",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-prod": "NODE_ENV=production gulp build",
+    "build-dev": "NODE_ENV=development gulp build",
+    "start": "NODE_ENV=development gulp watch"
   },
   "author": "México Abierto",
   "license": "MIT",

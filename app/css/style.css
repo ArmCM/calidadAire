@@ -248,13 +248,20 @@ hr.red {
 .botonera{
   margin-top: 50px;
   margin-bottom: 10px;
+  overflow: hidden;
 }
 
-.botonera a{
+.botonera a {
+  display: inline-block;
+  float: left;
   margin: 0px;
-  margin-left: -5px;
+  margin-left: -1px;
   border: 1px solid #ccc;
   padding: 10px 20px;
+}
+.botonera a.modal_mapa {
+  margin-left: 1px;
+  padding: 10px 19px;
 }
 
 .botonera a.active{

@@ -1,6 +1,33 @@
-//- app/pug/includes/head.pug
+block global_variables
 
-meta(http-equiv="Content-Type" content="text/html; charset=UTF-8")
-meta(name="description" content="")
-meta(name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no")
 title Calidad del Aire
+meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no')
+link(rel='shortcut icon', href='https://framework-gb.cdn.gob.mx/favicon.ico')
+link(href='https://framework-gb.cdn.gob.mx/assets/styles/main.css', rel='stylesheet')
+// Respond.js soporte de media queries para Internet Explorer 8
+// ie8.js EventTarget para cada nodo en Internet Explorer 8
+//if lt IE 9
+  script(src='https://oss.maxcdn.com/respond/1.4.2/respond.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/ie8/0.2.2/ie8.js')
+link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+if index
+  if production
+    each val in cssstyles
+      link(href='css/dist/' + val.basename + val.extname, type='text/css', rel='stylesheet', media='screen,projection')
+  else
+    link(href='css/style.css', type='text/css', rel='stylesheet', media='screen,projection')
+  
+  // Leaflet
+  link(rel='stylesheet', href='https://unpkg.com/leaflet@1.1.0/dist/leaflet.css', integrity='sha512-wcw6ts8Anuw10Mzh9Ytw4pylW8+NAD4ch3lqm9lzAsTxg0GFeJgoAtxuCLREZSC5lUXdVyo/7yfsqFjQ4S+aKw==', crossorigin='')
+else
+  style.
+    /*** Formatos de datos ***/
+    .dataset-format{font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;border-radius:0;padding:3px 5px}.dataset-format[data-format="csv"],.dataset-format[data-format="CSV"]{background-color:#ffd100}.dataset-format[data-format="kml"],.dataset-format[data-format="KML"]{background-color:#474747}.dataset-format[data-format="geojson"],.dataset-format[data-format="GEOJSON"],.dataset-format[data-format="json"],.dataset-format[data-format="JSON"]{background-color:#33ffd1}.dataset-format[data-format="pdf"],.dataset-format[data-format="PDF"]{background-color:#ff2200}.dataset-format[data-format="arcgis"],.dataset-format[data-format="ARCGIS"]{background-color:#d100FF}.dataset-format[data-format="xlsx"],.dataset-format[data-format="xls"],.dataset-format[data-format="excel"],.dataset-format[data-format="vnd.ms-excel"],.dataset-format[data-format="EXCEL"],.dataset-format[data-format="VND.MS-EXCEL"],.dataset-format[data-format="XLS"],.dataset-format[data-format="XLSX"]{background-color:#00d100}.dataset-format[data-format="xml"],.dataset-format[data-format="XML"]{background-color:#0000d1}.dataset-format[data-format="oracle"],.dataset-format[data-format="ORACLE"]{background-color:#55bada}.dataset-format[data-format="shp"],.dataset-format[data-format="SHP"]{background-color:#bada55}.dataset-format[data-format="kmz"],.dataset-format[data-format="KMZ"]{background-color:#55adab}.dataset-format[data-format="zip"],.dataset-format[data-format="ZIP"]{background-color:#669999}
+
+// Fuente Roboto
+link(href='https://fonts.googleapis.com/css?family=Roboto:300,700', rel='stylesheet')
+link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Tangerine')
+script(src='https://code.jquery.com/jquery-2.1.1.min.js')
+// Latest compiled and minified JavaScript
+script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js', integrity='sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa', crossorigin='anonymous')

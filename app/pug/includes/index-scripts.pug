@@ -1,0 +1,19 @@
+//- app/pug/includes/index-scripts.pug
+
+script(src='https://d3js.org/d3.v3.min.js', charset='utf-8')
+// Leaflet
+script(src='https://unpkg.com/leaflet@1.1.0/dist/leaflet.js', integrity='sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA==', crossorigin='')
+script(src='js/vendor/chartjs/Chart.bundle.js')
+script(src='js/vendor/chartjs/utils.js')
+script(src='js/vendor/jquery.gaugeIt.js')
+// local
+script(src='js/vendor/moment.min.js')
+if production
+  each val in sources
+    script(src='js/dist/' + val.basename + val.extname, type='text/javascript', charset='utf-8')
+else
+  script(src='js/utileria.js', type='text/javascript', charset='utf-8')
+  script(src='js/main.js', type='text/javascript', charset='utf-8')
+  script(src='js/estados_mexico.js', type='text/javascript', charset='utf-8')
+  script(src='js/estaciones_json.js', type='text/javascript', charset='utf-8')
+  script(src='js/mod_mapa.js', type='text/javascript', charset='utf-8')
