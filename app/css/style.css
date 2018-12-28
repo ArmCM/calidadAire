@@ -341,8 +341,10 @@ hr.red {
   margin: 30px 30px;
 }
 
-#navbarMainCollapse {
-  background-color: #eaeaea;
+@media screen and (max-width: 767px) {
+  #navbarMainCollapse {
+    background-color: #eaeaea;
+  }
 }
 
 .navbar{height :30px !important;}
@@ -571,7 +573,7 @@ option {
 }
 @media screen and (min-width: 422px) and (max-width: 767px) {
   .beta {
-    top: 32px;
+    top: 0;
     right: 0;
     width: 100%;
     padding: 5px;
@@ -585,7 +587,7 @@ option {
 }
 @media screen and (max-width: 421px) {
   .beta {
-    top: 47px;
+    top: 0;
     right: 0;
     width: 100%;
     padding: 5px;
